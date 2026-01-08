@@ -44,3 +44,27 @@ When triaging an item, the AI should:
 2. Propose a small checklist of next steps.
 3. Update the dashboard with the latest queue status.
 4. If completed, set `status: done` (or mark as ready to archive).
+
+## 7) Task Execution Rules
+When executing a task, the AI should:
+1. Read the source file (from `Inbox/`) to understand user's instructions.
+2. Perform ONLY vault-internal actions:
+   - Content creation (essays, summaries, analysis)
+   - File organization (moving, renaming within vault)
+   - Information gathering (from vault files only)
+3. Save output to `Done/` with descriptive filename.
+4. Update the original Needs_Action item: `status: done`.
+5. Move the completed item from `Needs_Action/` to `Done/`.
+6. Log the action in today's decisions log.
+
+**Prohibited Actions (Bronze Tier):**
+- No external API calls
+- No email sending
+- No file operations outside the vault
+- No shell command execution
+- No payments or transactions
+
+## 8) Archival Policy
+- Items in `Done/` older than 7 days: Move to `Archive/YYYY-MM/`
+- Processed `Inbox/` files older than 1 day: Delete if corresponding item exists
+- Never delete unprocessed files

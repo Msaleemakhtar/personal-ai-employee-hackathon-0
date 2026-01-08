@@ -1,5 +1,6 @@
 // Load environment variables from .env file
-require('dotenv').config({ path: '/home/salim/Desktop/hackathon0/.env' });
+// dotenv is installed in ops/node_modules
+require('/home/salim/Desktop/hackathon0/ops/node_modules/dotenv').config({ path: '/home/salim/Desktop/hackathon0/.env' });
 
 module.exports = {
   apps: [

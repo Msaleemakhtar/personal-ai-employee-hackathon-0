@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+import signal
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -9,6 +11,10 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from ai_employee.vault_io import safe_write_text
+
+
+# Global observer for signal handling
+_observer: Observer | None = None
 
 
 def _repo_root() -> Path:
@@ -129,10 +135,24 @@ class NeedsActionHandler(FileSystemEventHandler):
         )
 
 
+def _signal_handler(signum: int, frame) -> None:
+    """Handle shutdown signals gracefully."""
+    global _observer
+    print(f"\n[orchestrator] Received signal {signum}, shutting down...")
+    if _observer is not None:
+        _observer.stop()
+    sys.exit(0)
+
+
 def run_orchestrator(*, vault_path: str, mode: str = "queue") -> None:
+    global _observer
     vault_root = Path(vault_path)
     needs_action_dir = vault_root / "Needs_Action"
     needs_action_dir.mkdir(parents=True, exist_ok=True)
+
+    # Set up signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
 
     print(f"[orchestrator] Starting in {mode.upper()} mode")
     print(f"[orchestrator] Watching: {needs_action_dir}")
@@ -142,15 +162,18 @@ def run_orchestrator(*, vault_path: str, mode: str = "queue") -> None:
         print("[orchestrator] Auto mode: new items will be auto-triaged")
 
     handler = NeedsActionHandler(vault_root=vault_root, mode=mode)
-    observer = Observer()
-    observer.schedule(handler, str(needs_action_dir), recursive=False)
+    _observer = Observer()
+    _observer.schedule(handler, str(needs_action_dir), recursive=False)
 
-    observer.start()
+    _observer.start()
     try:
-        observer.join()
+        _observer.join()
+    except KeyboardInterrupt:
+        print("\n[orchestrator] Interrupted, shutting down...")
     finally:
-        observer.stop()
-        observer.join()
+        _observer.stop()
+        _observer.join()
+        print("[orchestrator] Stopped.")
 
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import re
+import signal
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -9,6 +11,10 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from ai_employee.vault_io import safe_write_text
+
+
+# Global observer for signal handling
+_observer: Observer | None = None
 
 
 def _utc_now() -> datetime:
@@ -96,7 +102,17 @@ class InboxHandler(FileSystemEventHandler):
         safe_write_text(out_path, content, vault_root=self.vault_root)
 
 
+def _signal_handler(signum: int, frame) -> None:
+    """Handle shutdown signals gracefully."""
+    global _observer
+    print(f"\n[filesystem-watcher] Received signal {signum}, shutting down...")
+    if _observer is not None:
+        _observer.stop()
+    sys.exit(0)
+
+
 def run_filesystem_watcher(*, vault_path: str) -> None:
+    global _observer
     vault_root = Path(vault_path)
     inbox_dir = vault_root / "Inbox"
     needs_action_dir = vault_root / "Needs_Action"
@@ -104,16 +120,26 @@ def run_filesystem_watcher(*, vault_path: str) -> None:
     inbox_dir.mkdir(parents=True, exist_ok=True)
     needs_action_dir.mkdir(parents=True, exist_ok=True)
 
-    handler = InboxHandler(vault_root=vault_root, inbox_dir=inbox_dir, needs_action_dir=needs_action_dir)
-    observer = Observer()
-    observer.schedule(handler, str(inbox_dir), recursive=False)
+    # Set up signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
 
-    observer.start()
+    print(f"[filesystem-watcher] Starting...")
+    print(f"[filesystem-watcher] Watching: {inbox_dir}")
+
+    handler = InboxHandler(vault_root=vault_root, inbox_dir=inbox_dir, needs_action_dir=needs_action_dir)
+    _observer = Observer()
+    _observer.schedule(handler, str(inbox_dir), recursive=False)
+
+    _observer.start()
     try:
-        observer.join()
+        _observer.join()
+    except KeyboardInterrupt:
+        print("\n[filesystem-watcher] Interrupted, shutting down...")
     finally:
-        observer.stop()
-        observer.join()
+        _observer.stop()
+        _observer.join()
+        print("[filesystem-watcher] Stopped.")
 
 
 if __name__ == "__main__":

@@ -25,8 +25,11 @@ echo ""
 # Run Claude with the triage skill
 # The --add-dir ensures vault files are accessible
 # The skill will scan Needs_Action/, triage items, and update the dashboard
+# --dangerously-skip-permissions is used because -p mode is non-interactive
+# This is safe for local use since we're only writing to the vault directory
 claude \
   --add-dir "$REPO_ROOT/AI_EMPLOYEE_VAULT" \
+  --dangerously-skip-permissions \
   -p "Use the triage-needs-action Agent Skill to triage all pending items in the vault queue. Only read/write inside the Obsidian vault. Update Dashboard.md and append a brief entry to Logs/decisions-$(date +%Y-%m-%d).md. Follow Company_Handbook.md rules."
 
 echo ""

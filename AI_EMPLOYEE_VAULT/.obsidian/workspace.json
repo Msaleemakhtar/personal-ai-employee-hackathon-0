@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "2a86f74600c7174c",
+        "id": "a72cfd9de63d5231",
         "type": "tabs",
         "children": [
           {
-            "id": "580cf120096f8793",
+            "id": "29fe58a8ca8ddbe6",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -74,7 +74,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 200.5
   },
   "right": {
     "id": "55fbb494672ac568",
@@ -179,26 +179,34 @@
       "bases:Create new base": false
     }
   },
-  "active": "580cf120096f8793",
+  "active": "e3143d098f83860f",
   "lastOpenFiles": [
-    "Needs_Action/FILE_2026-01-07_221247_queue_test_1767823967.txt.md",
-    "Inbox/queue_test_1767823967.txt",
-    "Needs_Action/FILE_2026-01-07_221127_test_1767823887.txt.md",
-    "Inbox/test_1767823887.txt",
-    "Needs_Action/FILE_2026-01-07_205440_demo4.txt.md",
-    "Inbox/demo4.txt",
-    "Needs_Action/FILE_2026-01-07_205100_demo3.txt.md",
-    "Inbox/demo3.txt",
-    "Logs/heartbeat-orchestrator.txt",
-    "Logs/orchestrator-2026-01-07.log",
-    "Needs_Action/FILE_2026-01-07_204411_demo2.txt.md",
-    "Inbox/demo2.txt",
-    "Needs_Action/FILE_2026-01-07_203928_demo.txt.md",
-    "Inbox/demo.txt",
-    "Company_Handbook.md.tmp.24556.1767817120910",
-    "Dashboard.md.tmp.24556.1767817120699",
+    "Logs/cron.log",
+    "Needs_Action/FILE_2026-01-08_125534_haiku_test.txt.md",
+    "Inbox/haiku_test.txt",
+    "Dashboard.md.tmp.12532.1767876695842",
+    "Done/RESULT_2026-01-08_q5_sales_review_response.md",
+    "Dashboard.md.tmp.12532.1767876687233",
     "Dashboard.md",
+    "Dashboard.md.tmp.12532.1767876674931",
     "Company_Handbook.md",
+    "Logs/decisions-2026-01-08.md",
+    "Needs_Action/FILE_2026-01-08_075307_pipeline_test_864.txt.md",
+    "Inbox/pipeline_test_864.txt",
+    "Inbox copy/pipeline_test_1767830958.txt",
+    "Inbox copy/demo2.txt",
+    "Inbox copy/pipeline_test_864041.txt",
+    "Inbox copy/test_drop_1767857177.txt",
+    "Inbox copy/test_1767823887.txt",
+    "Needs_Action/FILE_2026-01-08_001924_pipeline_test_864041.txt.md",
+    "Needs_Action/FILE_2026-01-08_001510_live_test_1767831310.txt.md",
+    "Needs_Action/FILE_2026-01-08_000918_pipeline_test_1767830958.txt.md",
+    "Needs_Action/FILE_2026-01-07_221247_queue_test_1767823967.txt.md",
+    "Needs_Action/FILE_2026-01-07_221127_test_1767823887.txt.md",
+    "Needs_Action/FILE_2026-01-07_205440_demo4.txt.md",
+    "Needs_Action/FILE_2026-01-07_205100_demo3.txt.md",
+    "Needs_Action/FILE_2026-01-07_204411_demo2.txt.md",
+    "Needs_Action/FILE_2026-01-07_203928_demo.txt.md",
     "Dashboard.md.md",
     "Company_Handbook.md.md",
     "Welcome.md"
