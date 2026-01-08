@@ -25,11 +25,11 @@ flowchart LR
   classDef claude fill:#8b5cf6,stroke:#6d28d9,color:#ffffff;
   classDef ops fill:#ef4444,stroke:#991b1b,color:#ffffff;
 
-  A[User drops file<br/>into Inbox/]:::source --> B[Filesystem Watcher<br/>watchdog]:::watcher
-  B --> C[Create Needs_Action note<br/>FILE_YYYY-MM-DD_HHMMSS_*.md]:::vault
-  C --> D[Orchestrator<br/>watchdog]:::orchestrator
-  D --> E[Claude Code (headless)<br/>runs Agent Skill]:::claude
-  E --> F[Update Dashboard.md<br/>Append decisions log]:::vault
+  A[User drops file<br>into Inbox/]:::source --> B[Filesystem Watcher<br>watchdog]:::watcher
+  B --> C[Create Needs_Action note<br>FILE_YYYY-MM-DD_HHMMSS_*.md]:::vault
+  C --> D[Orchestrator<br>watchdog]:::orchestrator
+  D --> E[Claude Code (headless)<br>runs Agent Skill]:::claude
+  E --> F[Update Dashboard.md<br>Append decisions log]:::vault
 
   P[PM2 supervisor]:::ops -. keeps alive .- B
   P -. keeps alive .- D
