@@ -5,7 +5,7 @@ A **local-first, fully autonomous assistant** built with:
 - **Python watchers** (watchdog + uv) for file detection
 - **Claude Code Agent Skills** for AI reasoning + execution
 - **PM2** for process supervision
-- **Cron** for scheduled automation
+- **Systemd timers** for scheduled automation (handles suspend/resume)
 
 ## Quick Start
 
@@ -52,7 +52,7 @@ echo "Write a haiku about coding" > AI_EMPLOYEE_VAULT/Inbox/haiku.txt
 # Check that a Needs_Action note was created (wait 2-3 seconds)
 ls AI_EMPLOYEE_VAULT/Needs_Action/
 
-# Run processing manually OR wait for cron (every 30 min)
+# Run processing manually OR wait for systemd timer (every 30 min)
 ./ops/scripts/process_queue.sh
 
 # Check results
@@ -106,18 +106,19 @@ pm2 startup
                                       │
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         Cron Automation                                      │
+│                      Systemd Timer Automation                                │
+│                    (survives suspend/resume!)                                │
 │                                                                              │
-│   */30 * * * *  process_queue.sh   (triage + execute every 30 min)          │
-│   0 0 * * *     archive_old.sh     (cleanup daily at midnight)              │
+│   ai-employee-queue.timer   process_queue.sh   (every 30 min)               │
+│   cron: 0 0 * * *           archive_old.sh     (daily at midnight)          │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Complete Data Flow
 
 ```
-User drops file     Watcher creates      Cron runs           Output saved
-into Inbox/    ──▶  Needs_Action/   ──▶  triage +       ──▶  to Done/
+User drops file     Watcher creates      Systemd timer       Output saved
+into Inbox/    ──▶  Needs_Action/   ──▶  runs triage +  ──▶  to Done/
                     note (.md)           execute-task
                     (instant)            (every 30 min)      (fully automatic)
 ```
@@ -126,12 +127,12 @@ into Inbox/    ──▶  Needs_Action/   ──▶  triage +       ──▶  t
 
 ## Automation Features
 
-### Cron Jobs (Automatic)
+### Scheduled Jobs (Automatic)
 
-| Schedule | Script | Purpose |
-|----------|--------|---------|
-| Every 30 min | `process_queue.sh` | Triage new items + Execute pending tasks |
-| Daily midnight | `archive_old.sh` | Archive old Done items, cleanup Inbox |
+| Schedule | Script | Method | Purpose |
+|----------|--------|--------|---------|
+| Every 30 min | `process_queue.sh` | Systemd timer | Triage + Execute (survives suspend) |
+| Daily midnight | `archive_old.sh` | Cron | Archive old Done items, cleanup Inbox |
 
 ### Agent Skills
 
@@ -174,10 +175,13 @@ hackathon0/
 │
 ├── ops/                        # Operations
 │   ├── pm2/ecosystem.config.cjs
+│   ├── systemd/                # Systemd timer (survives suspend)
+│   │   ├── ai-employee-queue.service
+│   │   ├── ai-employee-queue.timer
+│   │   └── install-timer.sh
 │   ├── scripts/
-│   │   ├── process_queue.sh    # Triage + Execute (cron)
-│   │   ├── archive_old.sh      # Cleanup (cron)
-│   │   └── triage_now.sh       # Manual triage only
+│   │   ├── process_queue.sh    # Triage + Execute (systemd timer)
+│   │   └── archive_old.sh      # Cleanup (cron)
 │   ├── runbooks/pm2.md
 │   ├── node_modules/           # Node dependencies
 │   ├── package.json
@@ -200,9 +204,8 @@ pm2 logs ai-employee-filesystem-watcher  # View watcher logs
 pm2 restart all                 # Restart all processes
 pm2 stop all                    # Stop all processes
 
-# Manual processing (or wait for cron)
+# Manual processing (or wait for systemd timer)
 ./ops/scripts/process_queue.sh  # Triage + Execute pending items
-./ops/scripts/triage_now.sh     # Triage only (no execution)
 ./ops/scripts/archive_old.sh    # Cleanup old items
 
 # Test file drop
@@ -213,8 +216,9 @@ ls AI_EMPLOYEE_VAULT/Inbox/
 ls AI_EMPLOYEE_VAULT/Needs_Action/
 ls AI_EMPLOYEE_VAULT/Done/
 
-# Check cron jobs
-crontab -l
+# Check systemd timer status
+systemctl --user list-timers ai-employee-queue.timer
+systemctl --user status ai-employee-queue.timer
 
 # View processing logs
 tail -f AI_EMPLOYEE_VAULT/Logs/process-queue.log
@@ -233,13 +237,18 @@ pm2 restart ai-employee-filesystem-watcher
 
 ### Tasks not executing
 ```bash
-# Check cron is running
-crontab -l
+# Check systemd timer is active
+systemctl --user list-timers ai-employee-queue.timer
+
+# Check service logs
+journalctl --user -u ai-employee-queue.service --since "1 hour ago"
 
 # Check processing logs
 cat AI_EMPLOYEE_VAULT/Logs/process-queue.log
 
 # Run manually to test
+systemctl --user start ai-employee-queue.service
+# OR
 ./ops/scripts/process_queue.sh
 ```
 
@@ -251,7 +260,7 @@ pm2 logs --err --lines 50
 ### Check system health
 ```bash
 pm2 status
-crontab -l
+systemctl --user list-timers ai-employee-queue.timer
 cat AI_EMPLOYEE_VAULT/Dashboard.md
 ```
 
@@ -276,15 +285,45 @@ LOGS_PATH=/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT/Logs
 
 ---
 
-## Cron Setup (Already Configured)
+## Systemd Timer Setup
 
-The following cron jobs are automatically set up:
+The main queue processor uses **systemd timers** instead of cron because:
+- Systemd timers with `Persistent=true` catch up on missed runs after suspend/sleep
+- Cron does NOT run missed jobs after system wake
 
+### Timer Files (Already Installed)
+
+Located at `~/.config/systemd/user/`:
+- `ai-employee-queue.timer` - Triggers every 30 minutes
+- `ai-employee-queue.service` - Runs process_queue.sh
+
+### Useful Commands
+
+```bash
+# Check timer status and next run
+systemctl --user list-timers ai-employee-queue.timer
+
+# View service logs
+journalctl --user -u ai-employee-queue.service -f
+
+# Manual trigger
+systemctl --user start ai-employee-queue.service
+
+# Reinstall timer (if needed)
+./ops/systemd/install-timer.sh
+```
+
+### Enable Persistence After Logout
+
+To ensure the timer runs even when logged out:
+```bash
+sudo loginctl enable-linger $USER
+```
+
+### Archive Cron Job
+
+The daily archive job still uses cron (fine for daily tasks):
 ```cron
-# Process queue every 30 minutes (triage + execute)
-*/30 * * * * /home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh
-
-# Archive old items daily at midnight
 0 0 * * * /home/salim/Desktop/hackathon0/ops/scripts/archive_old.sh
 ```
 

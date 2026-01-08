@@ -84,3 +84,269 @@ Dashboard.md has been updated with current counts and status:
 [2026-01-08T18:00:01+05:00] Done folder: 10 items
 [2026-01-08T18:00:01+05:00] Remaining in queue: 14 items
 [2026-01-08T18:00:01+05:00] ==========================================
+[2026-01-08T18:30:01+05:00] ==========================================
+[2026-01-08T18:30:01+05:00] Starting queue processing...
+[2026-01-08T18:30:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T18:30:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T18:30:01+05:00] Pending items in queue: 14
+[2026-01-08T18:30:01+05:00] Step 1: Running triage-needs-action skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 47: claude: command not found
+[2026-01-08T18:30:01+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T18:30:01+05:00] Triage complete.
+[2026-01-08T18:30:01+05:00] Step 2: Running execute-task skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 59: claude: command not found
+[2026-01-08T18:30:01+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T18:30:01+05:00] Execution complete.
+[2026-01-08T18:30:01+05:00] Step 3: Updating dashboard...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 71: claude: command not found
+[2026-01-08T18:30:01+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T18:30:01+05:00] Processing complete!
+[2026-01-08T18:30:01+05:00] Done folder: 10 items
+[2026-01-08T18:30:01+05:00] Remaining in queue: 14 items
+[2026-01-08T18:30:02+05:00] ==========================================
+[2026-01-08T18:57:55+05:00] ==========================================
+[2026-01-08T18:57:55+05:00] Starting queue processing...
+[2026-01-08T18:57:55+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T18:57:55+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T18:57:55+05:00] Pending items in queue: 14
+[2026-01-08T18:57:55+05:00] Step 1: Running triage-needs-action skill...
+You've hit your limit · resets 10pm (Asia/Karachi)
+[2026-01-08T18:58:08+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T18:58:08+05:00] Triage complete.
+[2026-01-08T18:58:08+05:00] Step 2: Running execute-task skill...
+You've hit your limit · resets 10pm (Asia/Karachi)
+[2026-01-08T18:58:15+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T18:58:15+05:00] Execution complete.
+[2026-01-08T18:58:15+05:00] Step 3: Updating dashboard...
+You've hit your limit · resets 10pm (Asia/Karachi)
+[2026-01-08T18:58:20+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T18:58:20+05:00] Processing complete!
+[2026-01-08T18:58:20+05:00] Done folder: 10 items
+[2026-01-08T18:58:20+05:00] Remaining in queue: 14 items
+[2026-01-08T18:58:20+05:00] ==========================================
+[2026-01-08T19:00:01+05:00] ==========================================
+[2026-01-08T19:00:01+05:00] Starting queue processing...
+[2026-01-08T19:00:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T19:00:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T19:00:01+05:00] Pending items in queue: 14
+[2026-01-08T19:00:01+05:00] Step 1: Running triage-needs-action skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 47: claude: command not found
+[2026-01-08T19:00:01+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T19:00:01+05:00] Triage complete.
+[2026-01-08T19:00:01+05:00] Step 2: Running execute-task skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 59: claude: command not found
+[2026-01-08T19:00:01+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T19:00:01+05:00] Execution complete.
+[2026-01-08T19:00:01+05:00] Step 3: Updating dashboard...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 71: claude: command not found
+[2026-01-08T19:00:01+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T19:00:01+05:00] Processing complete!
+[2026-01-08T19:00:01+05:00] Done folder: 10 items
+[2026-01-08T19:00:01+05:00] Remaining in queue: 14 items
+[2026-01-08T19:00:01+05:00] ==========================================
+[2026-01-08T21:00:02+05:00] ==========================================
+[2026-01-08T21:00:02+05:00] Starting queue processing...
+[2026-01-08T21:00:02+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T21:00:02+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T21:00:02+05:00] Pending items in queue: 15
+[2026-01-08T21:00:02+05:00] Step 1: Running triage-needs-action skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 47: claude: command not found
+[2026-01-08T21:00:02+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T21:00:02+05:00] Triage complete.
+[2026-01-08T21:00:02+05:00] Step 2: Running execute-task skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 59: claude: command not found
+[2026-01-08T21:00:02+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T21:00:02+05:00] Execution complete.
+[2026-01-08T21:00:02+05:00] Step 3: Updating dashboard...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 71: claude: command not found
+[2026-01-08T21:00:02+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T21:00:02+05:00] Processing complete!
+[2026-01-08T21:00:02+05:00] Done folder: 10 items
+[2026-01-08T21:00:02+05:00] Remaining in queue: 15 items
+[2026-01-08T21:00:02+05:00] ==========================================
+[2026-01-08T21:30:01+05:00] ==========================================
+[2026-01-08T21:30:01+05:00] Starting queue processing...
+[2026-01-08T21:30:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T21:30:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T21:30:02+05:00] Pending items in queue: 15
+[2026-01-08T21:30:02+05:00] Step 1: Running triage-needs-action skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 47: claude: command not found
+[2026-01-08T21:30:02+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T21:30:02+05:00] Triage complete.
+[2026-01-08T21:30:02+05:00] Step 2: Running execute-task skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 59: claude: command not found
+[2026-01-08T21:30:02+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T21:30:02+05:00] Execution complete.
+[2026-01-08T21:30:02+05:00] Step 3: Updating dashboard...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 71: claude: command not found
+[2026-01-08T21:30:02+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T21:30:02+05:00] Processing complete!
+[2026-01-08T21:30:02+05:00] Done folder: 10 items
+[2026-01-08T21:30:02+05:00] Remaining in queue: 15 items
+[2026-01-08T21:30:02+05:00] ==========================================
+[2026-01-08T22:00:01+05:00] ==========================================
+[2026-01-08T22:00:01+05:00] Starting queue processing...
+[2026-01-08T22:00:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:00:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:00:01+05:00] Pending items in queue: 15
+[2026-01-08T22:00:01+05:00] Step 1: Running triage-needs-action skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 47: claude: command not found
+[2026-01-08T22:00:01+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T22:00:01+05:00] Triage complete.
+[2026-01-08T22:00:01+05:00] Step 2: Running execute-task skill...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 59: claude: command not found
+[2026-01-08T22:00:01+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T22:00:02+05:00] Execution complete.
+[2026-01-08T22:00:02+05:00] Step 3: Updating dashboard...
+/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh: line 71: claude: command not found
+[2026-01-08T22:00:02+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T22:00:02+05:00] Processing complete!
+[2026-01-08T22:00:02+05:00] Done folder: 10 items
+[2026-01-08T22:00:02+05:00] Remaining in queue: 15 items
+[2026-01-08T22:00:02+05:00] ==========================================
+[2026-01-08T22:00:52+05:00] ==========================================
+[2026-01-08T22:00:52+05:00] Starting queue processing...
+[2026-01-08T22:00:52+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:00:52+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:00:52+05:00] Pending items in queue: 15
+[2026-01-08T22:00:52+05:00] Step 1: Running triage-needs-action skill...
+## Triage Complete
+
+**Items triaged:** 2 new items (employee.txt, haiku_test.txt)
+
+**High priority items (3 total):**
+1. FILE_2026-01-08_075307_pipeline_test_864.txt - URGENT pipeline test (aslam)
+2. FILE_2026-01-08_001924_pipeline_test_864041.txt - URGENT pipeline test (saleem)
+3. FILE_2026-01-08_000918_pipeline_test_1767830958.txt - URGENT pipeline test
+
+**New tasks identified:**
+- employee.txt: Write 5-line essay on AI Employee
+- haiku_test.txt: Write a haiku about coffee
+
+**Files updated:**
+- `Needs_Action/FILE_2026-01-08_154702_employee.txt.md` - Added summary and next steps
+- `Needs_Action/FILE_2026-01-08_125534_haiku_test.txt.md` - Added summary and next steps
+- `Dashboard.md` - Updated counts (Inbox: 18, Needs Action: 15, Done: 10) and top 5 items
+- `Logs/decisions-2026-01-08.md` - Appended triage entry for 15:47 UTC
+[2026-01-08T22:03:40+05:00] Triage complete.
+[2026-01-08T22:03:40+05:00] Step 2: Running execute-task skill...
+## Execution Summary
+
+**Tasks Executed: 5**
+
+| Item | Task | Output | Status |
+|------|------|--------|--------|
+| `pipeline_test_864.txt` (HIGH) | Confirm pipeline test | `RESULT_2026-01-08_pipeline_test_confirmation.md` | ✅ Completed |
+| `employee.txt` | Write 5-line essay on AI Employee | `RESULT_2026-01-08_essay_on_ai_employee.md` | ✅ Completed |
+| `haiku_test.txt` | Write haiku about coffee | `RESULT_2026-01-08_haiku_about_coffee.md` | ✅ Completed |
+| `sales_reviewt_after` | Sales review follow-up | (archived - source missing) | ✅ Archived |
+| `test_e2e_1767861415.txt` | E2E flow test | `RESULT_2026-01-08_e2e_test_confirmation.md` | ✅ Completed |
+
+**Outputs created in Done/:**
+- `RESULT_2026-01-08_pipeline_test_confirmation.md`
+- `RESULT_2026-01-08_essay_on_ai_employee.md`
+- `RESULT_2026-01-08_haiku_about_coffee.md`
+- `RESULT_2026-01-08_e2e_test_confirmation.md`
+
+**Items moved to Done/:** 5 (Needs_Action items archived with status: done)
+
+**Decisions log updated:** `Logs/decisions-2026-01-08.md`
+[2026-01-08T22:07:40+05:00] Execution complete.
+[2026-01-08T22:07:40+05:00] Step 3: Updating dashboard...
+
+An update to our Consumer Terms and Privacy Policy will take effect on October 8, 2025. Run `claude` to review the updated terms.
+
+Dashboard.md has been updated. Here's what changed:
+
+**Queues section:**
+- Inbox: 18 (unchanged)
+- Needs Action: 15 → **10** (5 items completed and moved to Done)
+- Done: 10 → **19** (9 new completed items)
+
+**Needs Action (Top 5):** Updated to reflect current items only:
+1. **[HIGH]** Pipeline test (saleem)
+2. **[HIGH]** Pipeline test (general)
+3. Test file drop verification
+4. Live test for real-time processing
+5. Queue detection test
+
+**Recent Decisions:** Updated with latest task execution run at 15:55 UTC.
+
+**Timestamps:** Last dashboard update set to 2026-01-08T16:05 UTC.
+[2026-01-08T22:09:25+05:00] Processing complete!
+[2026-01-08T22:09:25+05:00] Done folder: 19 items
+[2026-01-08T22:09:25+05:00] Remaining in queue: 10 items
+[2026-01-08T22:09:25+05:00] ==========================================
+[2026-01-08T22:17:15+05:00] ==========================================
+[2026-01-08T22:17:15+05:00] Starting queue processing...
+[2026-01-08T22:17:15+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:17:15+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:17:15+05:00] Pending items in queue: 10
+[2026-01-08T22:17:15+05:00] Step 1: Running triage-needs-action skill...
+## Triage Complete
+
+**Summary:**
+- **Items reviewed:** 10 (all in Needs_Action queue)
+- **New items triaged:** 0 (all items were already triaged)
+- **HIGH priority items:** 2
+
+**High Priority Items:**
+1. `FILE_2026-01-08_001924_pipeline_test_864041.txt` - URGENT pipeline test (saleem)
+2. `FILE_2026-01-08_000918_pipeline_test_1767830958.txt` - URGENT pipeline test
+
+**Files Updated:**
+- `Dashboard.md` - Updated timestamps and Recent Decisions section
+- `Logs/decisions-2026-01-08.md` - Appended triage entry with full queue status
+
+**Queue Counts:**
+| Queue | Count |
+|-------|-------|
+| Inbox | 18 |
+| Needs Action | 10 |
+| Done | 19 |
+
+All 10 items in the queue have proper YAML frontmatter, summaries, and next-step checklists. The 2 HIGH priority pipeline tests and 8 normal priority test/demo files are ready to be closed or archived when appropriate.
+[2026-01-08T22:18:35+05:00] Triage complete.
+[2026-01-08T22:18:35+05:00] Step 2: Running execute-task skill...
+I have successfully executed 5 pending tasks from the Needs_Action queue.
+
+## Execution Summary
+
+**Tasks Executed:** 5
+
+### Outputs Created:
+
+| Original Item | Output File |
+|--------------|-------------|
+| `pipeline_test_1767830958.txt` (HIGH) | `Done/RESULT_2026-01-08_pipeline_test_1767830958_confirmed.md` |
+| `pipeline_test_864041.txt` (HIGH) | `Done/RESULT_2026-01-08_pipeline_test_864041_confirmed.md` |
+| `demo.txt` | `Done/RESULT_2026-01-08_demo_test_confirmed.md` |
+| `demo2.txt` | `Done/RESULT_2026-01-08_demo2_test_confirmed.md` |
+| `demo3.txt` | `Done/RESULT_2026-01-08_demo3_test_confirmed.md` |
+
+### Actions Taken:
+- Read source files from `Inbox/` to get instructions
+- Created 5 result files in `Done/`
+- Updated all 5 Needs_Action items: `status: done`, checklists completed
+- Moved all 5 completed items from `Needs_Action/` to `Done/`
+- Logged execution summary to `Logs/decisions-2026-01-08.md`
+
+### Queue Status After Execution:
+- **HIGH priority items remaining:** 0 (both cleared)
+- **Items remaining in Needs_Action:** 5 (demo4, test files, live test, queue test, test_drop)
+[2026-01-08T22:21:03+05:00] Execution complete.
+[2026-01-08T22:21:03+05:00] Step 3: Updating dashboard...
+
+[ACTION REQUIRED] An update to our Consumer Terms and Privacy Policy has taken effect on October 8, 2025. You must run `claude` to review the updated terms.
+
+[2026-01-08T22:21:10+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T22:21:10+05:00] Processing complete!
+[2026-01-08T22:21:10+05:00] Done folder: 29 items
+[2026-01-08T22:21:10+05:00] Remaining in queue: 5 items
+[2026-01-08T22:21:10+05:00] ==========================================
+[2026-01-08T22:31:02+05:00] ==========================================
+[2026-01-08T22:31:02+05:00] Starting queue processing...
+[2026-01-08T22:31:02+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:31:02+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:31:02+05:00] Pending items in queue: 5
+[2026-01-08T22:31:02+05:00] Step 1: Running triage-needs-action skill...

@@ -43,7 +43,7 @@ READ → ANALYZE → PLAN → REQUEST APPROVAL → EXECUTE → LOG
 Your Obsidian vault has this structure:
 
 ```
-/Vault/
+/AI_EMPLOYEE_VAULT/
 ├── Dashboard.md                    # Real-time summary (update frequently)
 ├── Company_Handbook.md             # Your operating rules
 ├── Business_Goals.md               # Quarterly objectives and metrics

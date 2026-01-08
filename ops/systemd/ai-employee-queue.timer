@@ -1,0 +1,13 @@
+[Unit]
+Description=Run AI Employee Queue Processor every 30 minutes
+
+[Timer]
+# Run every 30 minutes
+OnCalendar=*:0/30
+# CRITICAL: This ensures missed runs (due to suspend/sleep) are executed on wake
+Persistent=true
+# Small random delay to avoid exact-minute spikes
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target

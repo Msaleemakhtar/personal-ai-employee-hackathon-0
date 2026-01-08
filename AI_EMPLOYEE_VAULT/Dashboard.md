@@ -5,15 +5,15 @@ Vault: `/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT`
 ## System Health
 - Watcher: **running** (PM2)
 - Orchestrator: **running** (queue mode)
-- Last triage: 2026-01-08T12:35 UTC
-- Last dashboard update: 2026-01-08T15:00 UTC
+- Last triage: 2026-01-08T16:15 UTC
+- Last dashboard update: 2026-01-08T16:15 UTC
 
 ## Queues
 | Queue | Count |
 |-------|-------|
-| Inbox | 16 |
-| Needs Action | 13 |
-| Done | 10 |
+| Inbox | 18 |
+| Needs Action | 10 |
+| Done | 19 |
 
 - Inbox: `[[Inbox/]]`
 - Needs Action: `[[Needs_Action/]]`
@@ -29,15 +29,15 @@ Vault: `/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT`
 ## Needs Action (Top 5)
 > This section is updated by the `update_dashboard` / `triage_needs_action` skill.
 
-1. **[HIGH]** [[FILE_2026-01-08_075307_pipeline_test_864.txt]] - URGENT pipeline test (aslam)
-2. **[HIGH]** [[FILE_2026-01-08_001924_pipeline_test_864041.txt]] - URGENT pipeline test (saleem)
-3. **[HIGH]** [[FILE_2026-01-08_000918_pipeline_test_1767830958.txt]] - URGENT pipeline test
-4. [[FILE_2026-01-08_114449_sales_reviewt_after.md]] - Sales review follow-up
-5. [[FILE_2026-01-08_083655_test_e2e_1767861415.txt]] - End-to-end flow test
+1. **[HIGH]** [[FILE_2026-01-08_001924_pipeline_test_864041.txt]] - URGENT pipeline test (saleem)
+2. **[HIGH]** [[FILE_2026-01-08_000918_pipeline_test_1767830958.txt]] - URGENT pipeline test
+3. [[FILE_2026-01-08_072617_test_drop_1767857177.txt]] - Test file drop verification
+4. [[FILE_2026-01-08_001510_live_test_1767831310.txt]] - Live test for real-time processing
+5. [[FILE_2026-01-07_221247_queue_test_1767823967.txt]] - Queue detection test
 
 ## Recent Decisions
 > This section is updated from `Logs/decisions-YYYY-MM-DD.md`.
 
-- **2026-01-08T12:35**: Executed 5 tasks; essay, saleem, sales reviews, test verification completed
-- **2026-01-08T14:25**: Verified 18 items; all triaged; 3 HIGH priority remain
-- **2026-01-08T12:15**: Triaged 1 new item (essay.txt); 3 HIGH priority remain
+- **2026-01-08T16:15**: Triage verification; 10 items in queue (2 HIGH priority), all previously triaged
+- **2026-01-08T15:55**: Executed 5 tasks; pipeline test (aslam), employee essay, haiku, sales follow-up, e2e test completed
+- **2026-01-08T15:47**: Triaged 2 new items (employee.txt, haiku_test.txt); 3 HIGH priority at time

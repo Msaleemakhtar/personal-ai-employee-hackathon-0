@@ -1,0 +1,13 @@
+[Unit]
+Description=AI Employee Queue Processor
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/salim/Desktop/hackathon0
+ExecStart=/home/salim/Desktop/hackathon0/ops/scripts/process_queue.sh
+StandardOutput=append:/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT/Logs/cron.log
+StandardError=append:/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT/Logs/cron.log
+
+[Install]
+WantedBy=multi-user.target

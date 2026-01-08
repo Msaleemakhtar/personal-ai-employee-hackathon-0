@@ -15,3 +15,109 @@
 [2026-01-08T18:00:01+05:00] Done folder: 10 items
 [2026-01-08T18:00:01+05:00] Remaining in queue: 14 items
 [2026-01-08T18:00:01+05:00] ==========================================
+[2026-01-08T18:30:01+05:00] ==========================================
+[2026-01-08T18:30:01+05:00] Starting queue processing...
+[2026-01-08T18:30:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T18:30:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T18:30:01+05:00] Pending items in queue: 14
+[2026-01-08T18:30:01+05:00] Step 1: Running triage-needs-action skill...
+[2026-01-08T18:30:01+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T18:30:01+05:00] Triage complete.
+[2026-01-08T18:30:01+05:00] Step 2: Running execute-task skill...
+[2026-01-08T18:30:01+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T18:30:01+05:00] Execution complete.
+[2026-01-08T18:30:01+05:00] Step 3: Updating dashboard...
+[2026-01-08T18:30:01+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T18:30:01+05:00] Processing complete!
+[2026-01-08T18:30:01+05:00] Done folder: 10 items
+[2026-01-08T18:30:01+05:00] Remaining in queue: 14 items
+[2026-01-08T18:30:02+05:00] ==========================================
+[2026-01-08T19:00:01+05:00] ==========================================
+[2026-01-08T19:00:01+05:00] Starting queue processing...
+[2026-01-08T19:00:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T19:00:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T19:00:01+05:00] Pending items in queue: 14
+[2026-01-08T19:00:01+05:00] Step 1: Running triage-needs-action skill...
+[2026-01-08T19:00:01+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T19:00:01+05:00] Triage complete.
+[2026-01-08T19:00:01+05:00] Step 2: Running execute-task skill...
+[2026-01-08T19:00:01+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T19:00:01+05:00] Execution complete.
+[2026-01-08T19:00:01+05:00] Step 3: Updating dashboard...
+[2026-01-08T19:00:01+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T19:00:01+05:00] Processing complete!
+[2026-01-08T19:00:01+05:00] Done folder: 10 items
+[2026-01-08T19:00:01+05:00] Remaining in queue: 14 items
+[2026-01-08T19:00:01+05:00] ==========================================
+[2026-01-08T21:00:02+05:00] ==========================================
+[2026-01-08T21:00:02+05:00] Starting queue processing...
+[2026-01-08T21:00:02+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T21:00:02+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T21:00:02+05:00] Pending items in queue: 15
+[2026-01-08T21:00:02+05:00] Step 1: Running triage-needs-action skill...
+[2026-01-08T21:00:02+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T21:00:02+05:00] Triage complete.
+[2026-01-08T21:00:02+05:00] Step 2: Running execute-task skill...
+[2026-01-08T21:00:02+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T21:00:02+05:00] Execution complete.
+[2026-01-08T21:00:02+05:00] Step 3: Updating dashboard...
+[2026-01-08T21:00:02+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T21:00:02+05:00] Processing complete!
+[2026-01-08T21:00:02+05:00] Done folder: 10 items
+[2026-01-08T21:00:02+05:00] Remaining in queue: 15 items
+[2026-01-08T21:00:02+05:00] ==========================================
+[2026-01-08T21:30:01+05:00] ==========================================
+[2026-01-08T21:30:01+05:00] Starting queue processing...
+[2026-01-08T21:30:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T21:30:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T21:30:02+05:00] Pending items in queue: 15
+[2026-01-08T21:30:02+05:00] Step 1: Running triage-needs-action skill...
+[2026-01-08T21:30:02+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T21:30:02+05:00] Triage complete.
+[2026-01-08T21:30:02+05:00] Step 2: Running execute-task skill...
+[2026-01-08T21:30:02+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T21:30:02+05:00] Execution complete.
+[2026-01-08T21:30:02+05:00] Step 3: Updating dashboard...
+[2026-01-08T21:30:02+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T21:30:02+05:00] Processing complete!
+[2026-01-08T21:30:02+05:00] Done folder: 10 items
+[2026-01-08T21:30:02+05:00] Remaining in queue: 15 items
+[2026-01-08T21:30:02+05:00] ==========================================
+[2026-01-08T22:00:01+05:00] ==========================================
+[2026-01-08T22:00:01+05:00] Starting queue processing...
+[2026-01-08T22:00:01+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:00:01+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:00:01+05:00] Pending items in queue: 15
+[2026-01-08T22:00:01+05:00] Step 1: Running triage-needs-action skill...
+[2026-01-08T22:00:01+05:00] Warning: Triage skill encountered an error (continuing to execution)
+[2026-01-08T22:00:01+05:00] Triage complete.
+[2026-01-08T22:00:01+05:00] Step 2: Running execute-task skill...
+[2026-01-08T22:00:02+05:00] Warning: Execute-task skill encountered an error
+[2026-01-08T22:00:02+05:00] Execution complete.
+[2026-01-08T22:00:02+05:00] Step 3: Updating dashboard...
+[2026-01-08T22:00:02+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T22:00:02+05:00] Processing complete!
+[2026-01-08T22:00:02+05:00] Done folder: 10 items
+[2026-01-08T22:00:02+05:00] Remaining in queue: 15 items
+[2026-01-08T22:00:02+05:00] ==========================================
+[2026-01-08T22:17:15+05:00] ==========================================
+[2026-01-08T22:17:15+05:00] Starting queue processing...
+[2026-01-08T22:17:15+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:17:15+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:17:15+05:00] Pending items in queue: 10
+[2026-01-08T22:17:15+05:00] Step 1: Running triage-needs-action skill...
+[2026-01-08T22:18:35+05:00] Triage complete.
+[2026-01-08T22:18:35+05:00] Step 2: Running execute-task skill...
+[2026-01-08T22:21:03+05:00] Execution complete.
+[2026-01-08T22:21:03+05:00] Step 3: Updating dashboard...
+[2026-01-08T22:21:10+05:00] Warning: Dashboard update encountered an error
+[2026-01-08T22:21:10+05:00] Processing complete!
+[2026-01-08T22:21:10+05:00] Done folder: 29 items
+[2026-01-08T22:21:10+05:00] Remaining in queue: 5 items
+[2026-01-08T22:21:10+05:00] ==========================================
+[2026-01-08T22:31:02+05:00] ==========================================
+[2026-01-08T22:31:02+05:00] Starting queue processing...
+[2026-01-08T22:31:02+05:00] Repository root: /home/salim/Desktop/hackathon0
+[2026-01-08T22:31:02+05:00] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
+[2026-01-08T22:31:02+05:00] Pending items in queue: 5
+[2026-01-08T22:31:02+05:00] Step 1: Running triage-needs-action skill...
