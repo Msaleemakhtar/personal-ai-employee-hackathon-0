@@ -15,6 +15,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 VAULT="$REPO_ROOT/AI_EMPLOYEE_VAULT"
 LOG_FILE="$VAULT/Logs/process-queue.log"
+LOCK_FILE="/tmp/ai-employee-queue.lock"
+
+# Acquire lock to prevent overlapping runs
+exec 200>"$LOCK_FILE"
+if ! flock -n 200; then
+    echo "[$(date -Iseconds)] Another instance is already running. Exiting." >> "$LOG_FILE"
+    echo "[$(date -Iseconds)] Another instance is already running. Exiting."
+    exit 0
+fi
 
 # Navigate to repo root so Claude can find project skills
 cd "$REPO_ROOT"
@@ -32,8 +41,8 @@ log "Starting queue processing..."
 log "Repository root: $REPO_ROOT"
 log "Vault: $VAULT"
 
-# Count pending items before processing
-PENDING_COUNT=$(find "$VAULT/Needs_Action" -name "*.md" -type f 2>/dev/null | wc -l)
+# Count pending items before processing (only status: pending, not blocked/done/in_progress)
+PENDING_COUNT=$(grep -l "^status: pending" "$VAULT/Needs_Action"/*.md 2>/dev/null | wc -l)
 log "Pending items in queue: $PENDING_COUNT"
 
 if [ "$PENDING_COUNT" -eq 0 ]; then

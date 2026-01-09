@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "gmail": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--directory",
+        "/home/salim/Desktop/hackathon0/apps/gmail-mcp-server",
+        "gmail-mcp"
+      ]
+    }
+  }
+}

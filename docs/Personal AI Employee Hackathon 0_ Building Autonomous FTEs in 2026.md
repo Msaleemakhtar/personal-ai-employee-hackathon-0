@@ -145,7 +145,7 @@ Estimated time: 20-30 hours
 
 6. Basic scheduling via cron or Task Scheduler
 
-7. All AI functionality should be implemented as [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview)
+7. All AI functionality should be implemented as [Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overvie      w)
 
 ## **Gold Tier: Autonomous Employee**
 
@@ -1122,4 +1122,4 @@ Alternatively, the hackathon document suggests writing a custom Python "Watchdog
 **Next Step: Advanced Custom Cloud FTE Architecture**  
 Once you have built this local AI Employee, you can shift to building cloud based custom FTEs:
 
-[https://docs.google.com/document/d/15GuwZwIOQy\_g1XsIJjQsFNHCTQTWoXQhWGVMhiH0swc/edit?usp=sharing](https://docs.google.com/document/d/15GuwZwIOQy_g1XsIJjQsFNHCTQTWoXQhWGVMhiH0swc/edit?usp=sharing) 
+[https://docs.google.com/document/d/15GuwZwIOQy\_g1XsIJjQsFNHCTQTWoXQhWGVMhiH0swc/edit?usp=sharing](https://docs.google.com/document/d/15GuwZwIOQy_g1XsIJjQsFNHCTQTWoXQhWGVMhiH0swc/edit?usp=sharing)

@@ -38,5 +38,16 @@ module.exports = {
         ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
       },
     },
+    {
+      name: "ai-employee-gmail-watcher",
+      cwd: "/home/salim/Desktop/hackathon0/apps/ai_employee",
+      script: "uv",
+      args: "run python -m ai_employee.watchers.gmail_watcher",
+      autorestart: true,
+      max_restarts: 50,
+      env: {
+        VAULT_PATH: process.env.VAULT_PATH,
+      },
+    },
   ],
 };
