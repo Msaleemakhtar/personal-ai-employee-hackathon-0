@@ -23,10 +23,17 @@ Vault path:
 - `/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT`
 
 Workflow folders MUST live inside the vault:
-- `AI_EMPLOYEE_VAULT/Inbox/`
-- `AI_EMPLOYEE_VAULT/Needs_Action/`
-- `AI_EMPLOYEE_VAULT/Done/`
-- `AI_EMPLOYEE_VAULT/Logs/`
+- `AI_EMPLOYEE_VAULT/Inbox/` — Drop files here for processing
+- `AI_EMPLOYEE_VAULT/Needs_Action/` — Items awaiting triage/execution
+- `AI_EMPLOYEE_VAULT/Done/` — Completed items
+- `AI_EMPLOYEE_VAULT/Logs/` — System logs and decision history
+
+**Silver tier adds:**
+- `AI_EMPLOYEE_VAULT/Plans/` — Complex task plans
+- `AI_EMPLOYEE_VAULT/Pending_Approval/` — Actions requiring human approval
+- `AI_EMPLOYEE_VAULT/Approved/` — Human-approved actions ready for execution
+- `AI_EMPLOYEE_VAULT/Rejected/` — Rejected approval requests
+- `AI_EMPLOYEE_VAULT/Archive/` — Old Done items (7+ days)
 
 Repo root is for code + ops + config:
 - `apps/`, `ops/`, `.claude/`, `pyproject.toml`, etc.
@@ -62,6 +69,33 @@ Repo root is for code + ops + config:
 - [ ] Filesystem watcher works (creates normalized notes in `Needs_Action/`)
 - [ ] Claude Code reads/writes vault via Agent Skills
 - [ ] PM2 runs watcher + orchestrator 24/7
+
+## Silver tier features (Email integration + Approvals)
+Silver tier extends Bronze with **Gmail integration** and **human approval workflow**:
+
+### Perception (Email watcher)
+- **Gmail Watcher**: Polls Gmail API every 2 minutes for `is:unread is:important`
+- Creates `EMAIL_{message_id}.md` in `Needs_Action/` for each new email
+- Persists processed IDs to survive restarts (`.gmail_processed_ids.json`)
+- Exponential backoff on API errors (30s → 1 hour max)
+
+### Reasoning (Email-aware skills)
+- **create-plan**: Creates detailed plans for complex tasks
+- **send-email-request**: Drafts emails and creates approval requests
+- Never sends emails directly - all go through approval workflow
+
+### Action (MCP + Approval workflow)
+1. Claude creates approval request in `Pending_Approval/`
+2. Human reviews and moves to `Approved/` (or `Rejected/`)
+3. Orchestrator detects approved file and executes via Gmail MCP
+4. Result logged to `Logs/{date}-actions.json`
+5. Files moved to `Done/`
+
+### Safety boundaries (Silver)
+- Email sending requires explicit human approval
+- Approval requests expire after 24 hours
+- Rate limits: 10 emails/hour, 50 emails/day
+- All external actions logged with full audit trail
 
 ---
 
@@ -116,17 +150,24 @@ Each `Needs_Action/*.md` MUST contain:
 
 ---
 
-## Required Agent Skills (Bronze)
-Create these skill docs:
-- `.claude/skills/triage_needs_action.md`
-- `.claude/skills/update_dashboard.md`
-- `.claude/skills/close_item.md`
+## Required Agent Skills
+
+### Bronze tier skills
+- `.claude/skills/triage-needs-action/` — Classify and prioritize items
+- `.claude/skills/update-dashboard/` — Recompute Dashboard.md
+- `.claude/skills/close-item/` — Mark item as done, move to Done/
+- `.claude/skills/execute-task/` — Execute pending tasks from queue
+
+### Silver tier skills
+- `.claude/skills/create-plan/` — Create detailed plans for complex tasks
+- `.claude/skills/send-email-request/` — Draft email and create approval request
 
 Each skill must define:
 - Purpose + scope
 - Exact inputs (folders/files)
 - Exact outputs (files it may write)
 - Safety rules (no deletes, vault-only)
+- **Loop prevention guards** (see skill docs for details)
 
 ---
 

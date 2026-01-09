@@ -16,6 +16,25 @@ Draft email content and create a human-approval request. This skill NEVER sends 
 - **NEVER** send emails without human approval
 - All email actions go through approval workflow
 
+## Loop Prevention (CRITICAL)
+To prevent infinite loops and duplicate requests:
+
+1. **Caller restrictions**
+   - Only called by: `triage-needs-action` or `execute-task` skills
+   - NEVER called by: `create-plan` skill (create-plan makes approval files manually)
+   - If called by create-plan: Exit immediately with warning
+
+2. **Check for existing approval requests**
+   - Before creating approval file, scan `Pending_Approval/` for existing requests for this source
+   - Look for files with pattern: `EMAIL_*_{source_email_id}_*.md` or `source: {source_filename}`
+   - If approval request already exists: Skip creation, log warning
+   - Maximum 1 email request per source item
+
+3. **Check source item status**
+   - Read source item frontmatter before processing
+   - Skip if status is: `awaiting_approval`, `blocked`, or `done`
+   - Only create request for items with status: `pending` or `in_progress`
+
 ## When to Use This Skill
 - Replying to an email in `Needs_Action/EMAIL_*.md`
 - Sending a new email as part of a plan
@@ -216,8 +235,9 @@ This is an introductory outreach email as specified in the partnership plan. It'
 - **Low**: Newsletters, marketing, non-urgent
 
 ## Integration with Other Skills
-- **create-plan**: May call this skill as part of a larger plan
-- **triage-needs-action**: Routes EMAIL_*.md items to this skill
+- **create-plan**: NEVER calls this skill - creates approval files manually instead
+- **triage-needs-action**: Routes EMAIL_*.md items to this skill (allowed)
+- **execute-task**: May call this skill as part of plan execution (allowed)
 - **Orchestrator ApprovedActionHandler**: Executes approved email via MCP
 
 ## Rate Limiting (Silver Tier)

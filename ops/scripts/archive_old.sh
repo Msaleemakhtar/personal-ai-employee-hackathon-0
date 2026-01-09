@@ -10,6 +10,9 @@
 
 set -euo pipefail
 
+# Lock file to prevent concurrent executions
+LOCK_FILE="/tmp/ai-employee-archive.lock"
+
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -32,6 +35,13 @@ log() {
     echo "[$(date -Iseconds)] $1" >> "$LOG_FILE"
     echo "[$(date -Iseconds)] $1"
 }
+
+# Acquire lock to prevent concurrent executions
+exec 200>"$LOCK_FILE"
+if ! flock -n 200; then
+    log "Another archive instance is running. Exiting."
+    exit 0
+fi
 
 log "=========================================="
 log "Starting archive process..."

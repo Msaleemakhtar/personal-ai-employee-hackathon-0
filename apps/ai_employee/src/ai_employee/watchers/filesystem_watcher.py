@@ -4,7 +4,7 @@ import os
 import re
 import signal
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
@@ -12,13 +12,12 @@ from watchdog.observers import Observer
 
 from ai_employee.vault_io import safe_write_text
 
-
 # Global observer for signal handling
 _observer: Observer | None = None
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _safe_slug(name: str) -> str:
@@ -102,7 +101,7 @@ class InboxHandler(FileSystemEventHandler):
         safe_write_text(out_path, content, vault_root=self.vault_root)
 
 
-def _signal_handler(signum: int, frame) -> None:
+def _signal_handler(signum: int, _frame) -> None:
     """Handle shutdown signals gracefully."""
     global _observer
     print(f"\n[filesystem-watcher] Received signal {signum}, shutting down...")
@@ -124,7 +123,7 @@ def run_filesystem_watcher(*, vault_path: str) -> None:
     signal.signal(signal.SIGINT, _signal_handler)
     signal.signal(signal.SIGTERM, _signal_handler)
 
-    print(f"[filesystem-watcher] Starting...")
+    print("[filesystem-watcher] Starting...")
     print(f"[filesystem-watcher] Watching: {inbox_dir}")
 
     handler = InboxHandler(vault_root=vault_root, inbox_dir=inbox_dir, needs_action_dir=needs_action_dir)

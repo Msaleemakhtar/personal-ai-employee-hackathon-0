@@ -5,14 +5,14 @@ import os
 import signal
 import subprocess
 import sys
-from datetime import datetime, timezone
+from collections import OrderedDict
+from datetime import UTC, datetime
 from pathlib import Path
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
 from ai_employee.vault_io import safe_write_text
-
 
 # Global observer for signal handling
 _observer: Observer | None = None
@@ -30,18 +30,30 @@ def _append_text(path: Path, text: str, *, vault_root: Path) -> None:
 
 
 def _utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 class NeedsActionHandler(FileSystemEventHandler):
+    # Memory management: prevent unbounded growth of _seen_files
+    MAX_SEEN_FILES = 1000
+    PRUNE_THRESHOLD = 800
+
     def __init__(self, *, vault_root: Path, mode: str = "queue"):
         self.vault_root = vault_root
         self.needs_action_dir = vault_root / "Needs_Action"
         self.logs_dir = vault_root / "Logs"
         self.mode = mode  # "queue" or "auto"
         # Debounce: track recently seen files to avoid retriggering on atomic saves/edits
-        self._seen_files: dict[str, float] = {}  # filename -> timestamp
+        self._seen_files: OrderedDict[str, float] = OrderedDict()  # filename -> timestamp
         self._debounce_seconds = 10.0  # ignore same file within 10 seconds
+
+    def _prune_seen_files(self) -> None:
+        """Prune old entries from _seen_files to prevent unbounded memory growth."""
+        if len(self._seen_files) < self.PRUNE_THRESHOLD:
+            return
+        num_to_remove = len(self._seen_files) - self.PRUNE_THRESHOLD
+        for _ in range(num_to_remove):
+            self._seen_files.popitem(last=False)
 
     def on_created(self, event):
         if event.is_directory:
@@ -60,10 +72,10 @@ class NeedsActionHandler(FileSystemEventHandler):
 
         # Debounce: ignore if we've seen this file very recently
         now = _utc_now().timestamp()
-        if path.name in self._seen_files:
-            if now - self._seen_files[path.name] < self._debounce_seconds:
-                return  # Skip, too soon
+        if path.name in self._seen_files and now - self._seen_files[path.name] < self._debounce_seconds:
+            return  # Skip, too soon
         self._seen_files[path.name] = now
+        self._prune_seen_files()  # Prevent memory leak
 
         if self.mode == "auto":
             # Trigger triage skill automatically (requires API key)
@@ -283,7 +295,7 @@ class ApprovedActionHandler(FileSystemEventHandler):
                 print(f"[approved-handler] Email send failed: {result.stderr}")
 
         except subprocess.TimeoutExpired:
-            print(f"[approved-handler] Email send timed out")
+            print("[approved-handler] Email send timed out")
             self._log_action(
                 now=now,
                 action_type="email_send",
@@ -376,7 +388,7 @@ class ApprovedActionHandler(FileSystemEventHandler):
             print(f"[approved-handler] Error moving {approval_file.name} to Done: {e}")
 
 
-def _signal_handler(signum: int, frame) -> None:
+def _signal_handler(signum: int, _frame) -> None:
     """Handle shutdown signals gracefully."""
     global _observer
     print(f"\n[orchestrator] Received signal {signum}, shutting down...")

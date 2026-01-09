@@ -1,10 +1,11 @@
-# Personal AI Employee — Hackathon 0 (Bronze)
+# Personal AI Employee — Hackathon 0 (Bronze + Silver)
 
 A **local-first, fully autonomous assistant** built with:
 - **Obsidian vault** as the dashboard + long-term memory
-- **Python watchers** (watchdog + uv) for file detection
+- **Python watchers** (watchdog + uv) for file detection + Gmail polling
 - **Claude Code Agent Skills** for AI reasoning + execution
 - **PM2** for process supervision
+- **Gmail MCP** for email actions (with human approval)
 - **Systemd timers** for scheduled automation (handles suspend/resume)
 
 ## Quick Start
@@ -76,23 +77,33 @@ pm2 startup
 │                              PM2 Supervisor                                  │
 │                         (keeps processes alive 24/7)                         │
 └─────────────────────────────────────────────────────────────────────────────┘
-                    │                              │
-                    ▼                              ▼
-┌─────────────────────────────┐    ┌─────────────────────────────┐
-│   Filesystem Watcher        │    │      Orchestrator           │
-│   (watchdog)                │    │      (watchdog)             │
-│                             │    │                             │
-│   Monitors: Inbox/          │    │   Monitors: Needs_Action/   │
-│   Creates: Needs_Action/    │    │   Logs new items            │
-└─────────────────────────────┘    └─────────────────────────────┘
-              │                                   │
-              ▼                                   ▼
+                    │                              │                        │
+                    ▼                              ▼                        ▼
+┌──────────────────────┐    ┌──────────────────────┐    ┌──────────────────────┐
+│ Filesystem Watcher   │    │   Orchestrator       │    │   Gmail Watcher      │
+│ (watchdog)           │    │   (watchdog)         │    │   (Gmail API)        │
+│                      │    │                      │    │                      │
+│ Monitors: Inbox/     │    │ Monitors:            │    │ Polls: Gmail         │
+│ Creates:             │    │  - Needs_Action/     │    │ Creates:             │
+│  Needs_Action/       │    │  - Approved/         │    │  Needs_Action/       │
+└──────────────────────┘    └──────────────────────┘    └──────────────────────┘
+              │                       │                                │
+              ▼                       ▼                                ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                           Obsidian Vault                                     │
-│  ┌──────────┐  ┌───────────────┐  ┌────────┐  ┌─────────┐  ┌──────────────┐ │
-│  │  Inbox/  │─▶│ Needs_Action/ │─▶│  Done/ │─▶│ Archive/│  │ Dashboard.md │ │
-│  │ (raw)    │  │ (actionable)  │  │(done)  │  │(old)    │  │              │ │
-│  └──────────┘  └───────────────┘  └────────┘  └─────────┘  └──────────────┘ │
+│  ┌──────────┐  ┌───────────────┐  ┌──────────────────┐  ┌────────┐          │
+│  │  Inbox/  │─▶│ Needs_Action/ │─▶│ Pending_Approval/│─▶│  Done/ │          │
+│  │ (raw)    │  │ (actionable)  │  │ (awaiting human) │  │ (done) │          │
+│  └──────────┘  └───────────────┘  └──────────────────┘  └────────┘          │
+│                        │                  │     │             │               │
+│                        │                  ▼     ▼             ▼               │
+│                        │           Approved  Rejected   ┌─────────┐          │
+│                        │             (ready) (no)       │Archive/ │          │
+│                        │                  │             │ (old)   │          │
+│                        ▼                  ▼             └─────────┘          │
+│                  ┌──────────────┐  ┌────────────┐  ┌──────────────┐         │
+│                  │Dashboard.md  │  │Plans/      │  │Logs/         │         │
+│                  └──────────────┘  └────────────┘  └──────────────┘         │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
               ┌───────────────────────┼───────────────────────┐
@@ -136,12 +147,41 @@ into Inbox/    ──▶  Needs_Action/   ──▶  runs triage +  ──▶  t
 
 ### Agent Skills
 
+#### Bronze Tier
 | Skill | Purpose |
 |-------|---------|
 | `triage-needs-action` | Classify, prioritize, add checklists |
 | `execute-task` | **Actually DO the work** (write essays, analyze, etc.) |
 | `update-dashboard` | Refresh counts and status |
 | `close-item` | Mark done and move to Done/ |
+
+#### Silver Tier (Email + Approvals)
+| Skill | Purpose |
+|-------|---------|
+| `create-plan` | Create detailed plans for complex multi-step tasks |
+| `send-email-request` | Draft emails and create approval requests (never sends directly) |
+
+### Silver Tier: Email Approval Workflow
+
+```
+Gmail Inbox              Claude Creates         Human Reviews        Orchestrator Executes
+(unread+important)  ──▶  Approval Request  ──▶  Move to Approved/ ──▶  Send via Gmail MCP
+                         (Pending_Approval/)     (or Rejected/)         (logs to actions.json)
+```
+
+**Safety guarantees:**
+- ✅ No email sent without explicit human approval
+- ✅ All requests expire after 24 hours (auto-rejected)
+- ✅ Rate limits: 10 emails/hour, 50 emails/day
+- ✅ Full audit trail in `Logs/{date}-actions.json`
+
+**Approval process:**
+1. Claude detects email in `Needs_Action/EMAIL_*.md`
+2. Claude drafts reply and creates `Pending_Approval/EMAIL_REPLY_{id}.md`
+3. Human reviews the draft in Obsidian
+4. Human moves to `Approved/` (to send) or `Rejected/` (to cancel)
+5. Orchestrator detects approved file and executes via Gmail MCP
+6. Result logged, files moved to `Done/`
 
 ---
 
@@ -154,6 +194,10 @@ hackathon0/
 │   ├── Company_Handbook.md     # Rules of engagement
 │   ├── Inbox/                  # Raw file drops
 │   ├── Needs_Action/           # Actionable items
+│   ├── Plans/                  # Complex task plans (Silver)
+│   ├── Pending_Approval/       # Awaiting human review (Silver)
+│   ├── Approved/               # Approved actions (Silver)
+│   ├── Rejected/               # Rejected requests (Silver)
 │   ├── Done/                   # Completed items
 │   ├── Archive/                # Old items (7+ days)
 │   └── Logs/                   # Decision + process logs
@@ -161,17 +205,22 @@ hackathon0/
 ├── apps/ai_employee/           # Python runtime
 │   ├── src/ai_employee/
 │   │   ├── watchers/
-│   │   │   └── filesystem_watcher.py
-│   │   ├── orchestrator.py
+│   │   │   ├── filesystem_watcher.py
+│   │   │   └── gmail_watcher.py     # Silver: Gmail API polling
+│   │   ├── orchestrator.py          # Handles Needs_Action + Approved
 │   │   ├── vault_io.py
+│   │   ├── frontmatter.py           # YAML parsing
+│   │   ├── exceptions.py            # Custom exceptions
 │   │   └── schemas.py
 │   └── tests/
 │
 ├── .claude/skills/             # Agent Skills (AI logic)
 │   ├── triage-needs-action/
-│   ├── execute-task/           # NEW: Actually executes tasks
+│   ├── execute-task/
 │   ├── update-dashboard/
-│   └── close-item/
+│   ├── close-item/
+│   ├── create-plan/            # Silver: Complex task planning
+│   └── send-email-request/     # Silver: Email draft + approval
 │
 ├── ops/                        # Operations
 │   ├── pm2/ecosystem.config.cjs

@@ -30,6 +30,26 @@ Create a plan when the item:
 - Always create approval requests for external actions
 - Never delete original Needs_Action items
 
+## Loop Prevention (CRITICAL)
+To prevent infinite loops and skill recursion:
+
+1. **NEVER call send-email-request skill directly**
+   - Only create approval files manually with `status: pending_human_approval`
+   - Let the orchestrator handle approval workflow
+
+2. **Skip items already being planned**
+   - Check frontmatter `status` field before creating plan
+   - Skip if status is: `planning`, `awaiting_approval`, `blocked`, or `planned`
+   - Only create plans for items with status: `pending` or `in_progress`
+
+3. **Maximum plan depth: 1**
+   - Never create a plan for another plan
+   - Check if source item `type` is `plan` - if so, skip and log warning
+
+4. **One plan per source item**
+   - Before creating plan, check if `Plans/PLAN_{filename}.md` already exists
+   - If exists, read and update it instead of creating duplicate
+
 ## Process
 1. Read the Needs_Action item from `Needs_Action/` folder
 2. Analyze the request and determine if it needs a detailed plan
@@ -173,7 +193,7 @@ None
 
 ## Integration with Other Skills
 - **triage-needs-action**: Calls this skill when item is complex
-- **send-email-request**: This skill may call that skill if plan includes email action
+- **send-email-request**: NEVER call directly - create approval files manually instead
 - **execute-task**: Uses the plan as guide for execution steps
 
 ## Error Handling

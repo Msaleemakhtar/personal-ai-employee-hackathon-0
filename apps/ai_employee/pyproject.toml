@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.1",
+    "pyyaml>=6.0.1",
     "watchdog>=6.0.0",
     "google-auth>=2.29.0",
     "google-auth-oauthlib>=1.2.0",
@@ -25,6 +26,14 @@ package = true
 
 [tool.ruff]
 line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "ARG", "SIM"]
+ignore = ["E501", "B008"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["ai_employee"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
