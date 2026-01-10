@@ -69,7 +69,7 @@ Parse the YAML frontmatter `type` field to determine task type:
 - `type: file_drop` → Read source file and execute user's instruction (content creation/analysis)
 - `type: email` → Silver tier email workflow (draft reply via send-email-request skill)
 - `type: task` → Generic task execution
-- `type: plan` → Execute steps from plan (not implemented yet)
+- `type: plan` → Execute steps from plan (see Plan Execution section below)
 
 For file_drop tasks, parse the user's instruction to determine what to do:
 - Keywords "write", "create", "draft", "compose" → Content creation
@@ -109,8 +109,81 @@ original_instruction: <brief summary of what was asked>
 5. Move `FILE_2026-01-08_120645_essay.txt.md` to `Done/`
 6. Log: `[2026-01-08T12:30:00] EXECUTED: essay.txt → essay_on_agentic_ai.md`
 
+## Plan Execution (Silver Tier)
+
+When a Needs_Action item has `type: plan`:
+
+1. **Read the plan reference:**
+   - Check frontmatter for `plan: Plans/PLAN_<filename>.md`
+   - If no plan link found, skip and log warning
+
+2. **Parse the plan file:**
+   - Read the plan from `Plans/` folder
+   - Extract the checklist of steps from "## Steps" section
+   - Identify steps marked as requiring approval (look for "REQUIRES APPROVAL")
+
+3. **Execute vault-internal steps:**
+   - For unchecked steps that don't require external action:
+     * Content creation (write summaries, reports, analyses)
+     * Data organization (scan folders, create lists, analyze patterns)
+     * Research (read existing vault files, extract information)
+   - Check off completed steps by updating the plan file
+   - Skip steps marked "REQUIRES APPROVAL" - these need human approval workflow
+
+4. **Check approval requirements:**
+   - If a step requires external action (email, payment, API call):
+     * Verify approval file exists in `Approved/` folder
+     * If approved, note in plan that approval is ready
+     * If not approved, mark step as blocked and stop execution
+   - External actions are delegated to separate workflows (email → send-email-request skill)
+
+5. **Update plan status:**
+   - Check off completed steps in plan checklist
+   - Update plan frontmatter `status` field:
+     * `in_progress` → Some steps done, more remaining
+     * `completed` → All steps checked off
+     * `blocked` → Waiting for approval or dependency
+   - Add execution notes at bottom of plan
+
+6. **Complete when done:**
+   - If all steps completed, move plan to `Done/`
+   - Move original Needs_Action item to `Done/`
+   - Log summary to decisions log
+
+### Plan Execution Example
+
+**Input:** Needs_Action item with `type: plan` and `plan: Plans/PLAN_FILE_2026-01-09_summary.txt.md`
+
+**Plan Steps:**
+```markdown
+## Steps
+- [x] Read source file for requirements
+- [ ] Scan Done/ folder for Q4 2025 items (Oct-Dec)
+- [ ] Extract key accomplishments from each item
+- [ ] Create markdown report with sections
+- [ ] Save to Done/RESULT_Q4_2025_summary.md
+```
+
+**Actions:**
+1. Read plan file
+2. Execute step 2: Scan Done/ for Q4 items, check off in plan
+3. Execute step 3: Extract accomplishments, check off in plan
+4. Execute step 4: Create report, check off in plan
+5. Execute step 5: Save result, check off in plan
+6. Update plan status to `completed`
+7. Move plan and Needs_Action item to Done/
+
+### Plan Execution Safety Rules
+
+- **Never execute external actions directly** - these must go through approval workflow
+- **Update plan checklist incrementally** - check off steps as you complete them
+- **Stop if blocked** - if a step requires approval that hasn't been granted, mark plan as `blocked` and stop
+- **Preserve plan history** - never delete plan content, only add notes and check off items
+- **One plan at a time** - process plans sequentially to avoid conflicts
+
 ## What to Tell the User
 Return a short summary:
 - How many tasks were executed
 - List of outputs created (with paths)
 - Any items that couldn't be executed (and why)
+- For plans: list steps completed and current plan status

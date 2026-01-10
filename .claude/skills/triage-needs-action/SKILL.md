@@ -1,7 +1,7 @@
 ---
 name: triage-needs-action
 description: Triage items in the Obsidian vault Needs_Action queue, update Dashboard.md, and append a decision log entry. Use when asked to triage, process, or review Needs_Action.
-allowed-tools: Read, Edit, Write, Glob
+allowed-tools: Read, Edit, Write, Glob, Skill
 ---
 
 # Hackathon Skill: Triage Needs_Action
@@ -41,6 +41,29 @@ When this skill runs you must:
 - If the note includes keywords like: urgent/asap/payment/invoice/deadline → `priority: high`
 - Otherwise keep `priority: normal`
 - Default `status: pending` unless clearly blocked.
+
+## Complexity Detection & Plan Creation (Silver Tier)
+After triaging each item, analyze if it requires a detailed plan. Create a plan when the item:
+- Has more than 3 next steps in your checklist
+- Requires external actions (email sending, API calls, payments)
+- Involves multiple decisions or branching logic
+- Needs human approval for any step
+- Is complex enough that step-by-step planning would help
+
+### How to Create Plans
+When complexity criteria are met:
+1. Use the Skill tool to invoke: `create-plan` (pass the item filename as context)
+2. The create-plan skill will:
+   - Create `Plans/PLAN_{filename}.md`
+   - Update the original item with plan reference
+   - Create approval requests if needed
+3. Log the plan creation in your decision log entry
+
+### Loop Prevention (CRITICAL)
+- Check item's `status` field before creating plan
+- Skip plan creation if status is: `planning`, `planned`, `awaiting_approval`, `blocked`
+- Only create plans for: `pending` or `in_progress` items
+- Never create a plan for items with `type: plan` (plans don't plan themselves)
 
 ## What to tell the user
 Return a short summary:

@@ -27,7 +27,10 @@ Each plan contains:
 - **Dependencies**: Prerequisites or blockers
 
 ### Current Implementation Status
-- ✅ **Plan creation**: Fully working
+- ✅ **Plan creation**: Fully working (as of 2026-01-11)
+  - triage-needs-action skill now includes complexity detection
+  - Automatically calls create-plan for items with >3 steps or external actions
+  - Loop prevention guards in place
 - ⚠️ **Plan execution**: Partially implemented
   - execute-task skill has `type: plan` detection (line 72)
   - Handler marked as "not implemented yet"
@@ -97,7 +100,27 @@ ls -lh AI_EMPLOYEE_VAULT/Archive/$(date +%Y-%m)/
 
 ## Related Files
 - **create-plan skill**: `.claude/skills/create-plan/SKILL.md`
+- **triage-needs-action skill**: `.claude/skills/triage-needs-action/SKILL.md`
 - **execute-task skill**: `.claude/skills/execute-task/SKILL.md`
 - **Archive script**: `ops/scripts/archive_old.sh`
 - **Orchestrator**: `apps/ai_employee/src/ai_employee/orchestrator.py`
 - **Handbook**: `AI_EMPLOYEE_VAULT/Company_Handbook.md` (Section 8: Archival Policy)
+
+---
+
+## Changelog
+
+### 2026-01-11: Fixed Missing Complexity Detection
+**Issue**: Plan creation was not happening during triage, despite create-plan skill existing.
+
+**Root Cause**: triage-needs-action skill had no complexity detection logic or integration with create-plan.
+
+**Fix Applied**:
+1. Added `Skill` tool to triage-needs-action allowed-tools
+2. Added "Complexity Detection & Plan Creation" section with:
+   - Clear criteria (>3 steps, external actions, multiple decisions, etc.)
+   - Integration instructions (call create-plan via Skill tool)
+   - Loop prevention guards (check status, skip plans-of-plans)
+3. Updated documentation to reflect "Fully working" status
+
+**Test Case**: EMAIL_19ba9bf9d576632f.md had 5 next steps + external action but no plan was created. With this fix, future complex emails will trigger plan creation automatically.

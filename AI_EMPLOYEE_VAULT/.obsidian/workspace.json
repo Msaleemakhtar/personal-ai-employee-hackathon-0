@@ -1,12 +1,23 @@
 {
   "main": {
-    "id": "02941a007071a638",
+    "id": "bb4fe69a62cb7a87",
     "type": "split",
     "children": [
       {
-        "id": "a72cfd9de63d5231",
+        "id": "9711df42e0ca7b7e",
         "type": "tabs",
-        "children": []
+        "children": [
+          {
+            "id": "c1faf932410ac731",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
       }
     ],
     "direction": "vertical"
@@ -168,10 +179,30 @@
       "bases:Create new base": false
     }
   },
-  "active": null,
+  "active": "c1faf932410ac731",
   "lastOpenFiles": [
+    "Dashboard.md.tmp.45359.1768080889658",
+    "Dashboard.md.tmp.45359.1768080879382",
+    "Dashboard.md.tmp.45359.1768080873525",
+    "Dashboard.md.tmp.45359.1768080868817",
+    "Done/EMAIL_REPLY_19ba9bf9d576632f_1736545968.md",
+    "Done/EMAIL_19ba9bf9d576632f.md",
+    "Approved/EMAIL_REPLY_19ba9bf9d576632f_1736545968.md",
+    "Logs/decisions-2026-01-11.md.tmp.44977.1768080818671",
+    "Needs_Action/EMAIL_19ba9bf9d576632f.md.tmp.44977.1768080796994",
+    "Needs_Action/EMAIL_19ba9bf9d576632f.md.tmp.44977.1768080791708",
+    "Pending_Approval/EMAIL_REPLY_19ba9bf9d576632f_1736545968.md",
+    "Pending_Approval/EMAIL_REPLY_19ba9bf9d576632f_1736545968.md.tmp.44977.1768080785250",
+    "Logs/decisions-2026-01-11.md.tmp.44671.1768080732724",
+    "Dashboard.md.tmp.44671.1768080719239",
+    "Dashboard.md.tmp.44671.1768080719223",
+    "Needs_Action/TEST_vault_analysis.md",
+    "Done/TEST_vault_analysis.md",
+    "Needs_Action/EMAIL_19ba9bf9d576632f.md",
+    "Done/RESULT_vault_analysis_summary.md",
     "Dashboard.md",
     "Company_Handbook.md",
+    "Plans/PLAN_TEST_vault_analysis.md",
     "Welcome.md"
   ]
 }
