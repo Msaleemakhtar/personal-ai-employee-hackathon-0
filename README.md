@@ -16,7 +16,9 @@ A **local-first, fully autonomous assistant** built with:
 - Node.js 18+ and npm
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) (`claude --version`)
 
-### 1. Install Dependencies
+### Complete Startup Guide
+
+#### 1. Install Dependencies
 
 ```bash
 cd /home/salim/Desktop/hackathon0
@@ -31,41 +33,129 @@ cd ops && npm install && cd ..
 cd apps/ai_employee && uv sync && cd ../..
 ```
 
-### 2. Start the System
+#### 2. Configure Environment
 
 ```bash
-# Start all processes with PM2
-pm2 start ops/pm2/ecosystem.config.cjs
+# Copy .env template if not exists
+cp .env.example .env  # (or create manually)
 
-# Check status
-pm2 list
-
-# Save for persistence
-pm2 save
+# Edit .env with your settings:
+# ORCHESTRATOR_MODE=queue  (for Pro plan users)
+# VAULT_PATH=/home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
 ```
 
-### 3. Test It
+#### 3. Start PM2 Processes
 
 ```bash
-# Drop a file into the Inbox
+# Start all processes (filesystem-watcher, gmail-watcher, orchestrator)
+pm2 start ops/pm2/ecosystem.config.cjs
+
+# Verify all processes are running
+pm2 list
+
+# Save PM2 process list for auto-restart
+pm2 save
+
+# Setup PM2 to start on system boot (run once)
+pm2 startup
+# IMPORTANT: Run the command that PM2 outputs (requires sudo)
+```
+
+#### 4. Setup Systemd Timer (Queue Processor)
+
+```bash
+# Install systemd timer for automated queue processing
+./ops/systemd/install-timer.sh
+
+# Enable user services to run even when logged out
+sudo loginctl enable-linger $USER
+
+# Verify timer is active
+systemctl --user list-timers ai-employee-queue.timer
+
+# Check timer status
+systemctl --user status ai-employee-queue.timer
+```
+
+#### 5. Silver Tier: Gmail Setup (Optional)
+
+If you want email automation capabilities:
+
+```bash
+# Navigate to Gmail MCP server directory
+cd apps/gmail-mcp-server
+
+# Install dependencies
+uv sync
+
+# Authenticate with Gmail (opens browser)
+uv run gmail-mcp --auth
+
+# Verify authentication
+uv run gmail-mcp --check-auth
+
+# Return to project root
+cd ../..
+
+# Restart Gmail watcher to activate
+pm2 restart ai-employee-gmail-watcher
+```
+
+**Note**: This uses our custom FastMCP-based Gmail MCP server, not third-party packages.
+
+See `apps/gmail-mcp-server/QUICK_START.md` for detailed setup instructions.
+
+#### 6. Test the System
+
+```bash
+# Drop a test file into the Inbox
 echo "Write a haiku about coding" > AI_EMPLOYEE_VAULT/Inbox/haiku.txt
 
 # Check that a Needs_Action note was created (wait 2-3 seconds)
 ls AI_EMPLOYEE_VAULT/Needs_Action/
 
-# Run processing manually OR wait for systemd timer (every 30 min)
+# Run processing manually (or wait for systemd timer - every 30 min)
 ./ops/scripts/process_queue.sh
 
-# Check results
+# Check results in Done folder
 ls AI_EMPLOYEE_VAULT/Done/
+
+# View Dashboard
+cat AI_EMPLOYEE_VAULT/Dashboard.md
 ```
 
-### 4. Persist Across Reboots
+### Restart Everything (After Reboot or Code Changes)
 
 ```bash
-pm2 save
-pm2 startup
-# Run the command PM2 outputs (requires sudo)
+# Restart all PM2 processes
+pm2 restart all
+
+# Or restart individual processes
+pm2 restart ai-employee-filesystem-watcher
+pm2 restart ai-employee-gmail-watcher
+pm2 restart ai-employee-orchestrator
+
+# Verify status
+pm2 list
+pm2 logs --lines 20
+
+# Check systemd timer
+systemctl --user status ai-employee-queue.timer
+```
+
+### Stop Everything
+
+```bash
+# Stop all PM2 processes
+pm2 stop all
+
+# Or stop individual processes
+pm2 stop ai-employee-filesystem-watcher
+pm2 stop ai-employee-gmail-watcher
+pm2 stop ai-employee-orchestrator
+
+# Disable systemd timer
+systemctl --user stop ai-employee-queue.timer
 ```
 
 ---
@@ -81,11 +171,12 @@ pm2 startup
                     ▼                              ▼                        ▼
 ┌──────────────────────┐    ┌──────────────────────┐    ┌──────────────────────┐
 │ Filesystem Watcher   │    │   Orchestrator       │    │   Gmail Watcher      │
-│ (watchdog)           │    │   (watchdog)         │    │   (Gmail API)        │
-│                      │    │                      │    │                      │
+│ (watchdog)           │    │   (watchdog)         │    │ (Gmail API Direct)   │
+│                      │    │                      │    │   NOT MCP!           │
 │ Monitors: Inbox/     │    │ Monitors:            │    │ Polls: Gmail         │
-│ Creates:             │    │  - Needs_Action/     │    │ Creates:             │
-│  Needs_Action/       │    │  - Approved/         │    │  Needs_Action/       │
+│ Creates:             │    │  - Needs_Action/     │    │ every 2 min          │
+│  Needs_Action/       │    │  - Approved/         │    │ Creates:             │
+│                      │    │                      │    │  Needs_Action/       │
 └──────────────────────┘    └──────────────────────┘    └──────────────────────┘
               │                       │                                │
               ▼                       ▼                                ▼
@@ -113,6 +204,8 @@ pm2 startup
 │                                                                              │
 │   triage-needs-action  │  execute-task      │  update-dashboard │ close-item│
 │   (classify/prioritize)│  (DO THE WORK!)    │  (refresh counts) │ (mark done│
+│                                                                              │
+│   Gmail MCP Server: Used for ACTIONS (send/reply), NOT for polling          │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
                                       ▼
@@ -165,7 +258,7 @@ into Inbox/    ──▶  Needs_Action/   ──▶  runs triage +  ──▶  t
 
 ```
 Gmail Inbox              Claude Creates         Human Reviews        Orchestrator Executes
-(unread+important)  ──▶  Approval Request  ──▶  Move to Approved/ ──▶  Send via Gmail MCP
+(unread+important)  ──▶  Approval Request  ──▶  Move to Approved/ ──▶  Send via Custom Gmail MCP
                          (Pending_Approval/)     (or Rejected/)         (logs to actions.json)
 ```
 
@@ -180,8 +273,140 @@ Gmail Inbox              Claude Creates         Human Reviews        Orchestrato
 2. Claude drafts reply and creates `Pending_Approval/EMAIL_REPLY_{id}.md`
 3. Human reviews the draft in Obsidian
 4. Human moves to `Approved/` (to send) or `Rejected/` (to cancel)
-5. Orchestrator detects approved file and executes via Gmail MCP
+5. Orchestrator detects approved file and executes via custom Gmail MCP server
 6. Result logged, files moved to `Done/`
+
+**Technical implementation:**
+- Custom FastMCP-based Gmail MCP server (`apps/gmail-mcp-server/`)
+- 19 Gmail tools available via Claude Code CLI
+- OAuth 2.0 authentication (credentials in `~/.gmail-mcp/`)
+- Setup: `cd apps/gmail-mcp-server && uv run gmail-mcp --auth`
+
+---
+
+## Gmail Watcher Architecture
+
+The Gmail watcher uses a **two-component architecture** that separates perception (polling) from action (email operations):
+
+### Component 1: Gmail Watcher (Polling - NO MCP)
+
+The watcher polls Gmail **directly** using Google's Python client library (`google-api-python-client`):
+
+**Location:** `apps/ai_employee/src/ai_employee/watchers/gmail_watcher.py`
+
+**How it works:**
+```python
+# Direct Gmail API polling (apps/ai_employee/src/ai_employee/watchers/gmail_watcher.py:132-140)
+def check_for_updates(self) -> list:
+    results = self.service.users().messages().list(
+        userId='me',
+        q='is:unread in:inbox'  # Gmail query syntax
+    ).execute()
+```
+
+**Key features:**
+- ✅ **Polling interval**: Every 120 seconds (2 minutes)
+- ✅ **Query**: `is:unread in:inbox` - only unread emails in inbox
+- ✅ **Authentication**: OAuth2 credentials from `~/.gmail-mcp/credentials.json`
+- ✅ **Library**: `google-api-python-client` (NOT MCP)
+- ✅ **Supervision**: PM2-managed 24/7 process (`ai-employee-gmail-watcher`)
+- ✅ **Output**: Creates `EMAIL_{message_id}.md` in `Needs_Action/`
+
+**State persistence:**
+
+Deduplication is handled via `AI_EMPLOYEE_VAULT/Logs/.gmail_processed_ids.json`:
+```json
+{
+  "processed_ids": {
+    "19ba763c95bed08c": 1768039909.562355
+  },
+  "last_updated": "2026-01-10T10:11:49.562553+00:00",
+  "count": 1
+}
+```
+
+- Tracks processed email IDs with timestamps
+- Prevents duplicate processing across restarts
+- Auto-prunes IDs older than 30 days to prevent unbounded growth
+- Keeps max 10,000 most recent IDs in memory
+
+**Error handling:**
+- Exponential backoff: starts at 30s, maxes at 1 hour
+- Special handling for OAuth credential errors (long cooldown to prevent spam)
+- Graceful shutdown via SIGTERM/SIGINT handlers
+- Automatic restart by PM2 on crash
+
+### Component 2: Gmail MCP Server (Actions - Used by Claude)
+
+The Gmail MCP server is a **separate component** that provides tools for Claude Code to take actions:
+
+**Location:** `apps/gmail-mcp-server/src/gmail_mcp/server.py`
+
+**When it's used:**
+- ❌ **NOT** used for polling/watching
+- ✅ Used when Claude needs to **send emails, reply, forward**, etc.
+- ✅ Requires **human approval** (Silver tier approval workflow)
+- ✅ Provides 19 MCP tools: `gmail_send_message`, `gmail_reply_to_message`, etc.
+
+**MCP Tools available:**
+```
+Message Operations: list, get, send, reply, forward, trash, delete
+Draft Operations: list, get, create, update, send
+Label Operations: list, create, update, delete
+Bulk Operations: mark_as_read, archive, modify_labels
+```
+
+### Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Gmail Watcher (Perception - No MCP)                 │
+│ ─────────────────────────────────────               │
+│ • Direct Gmail API via google-api-python-client     │
+│ • Polls every 2 minutes for "is:unread in:inbox"    │
+│ • Creates EMAIL_*.md in Needs_Action/               │
+│ • PM2-managed 24/7 process                          │
+│ • State persisted to .gmail_processed_ids.json      │
+│ • NO Claude Code involvement = cheap + fast         │
+└─────────────────────────────────────────────────────┘
+                     ↓
+┌─────────────────────────────────────────────────────┐
+│ Gmail MCP Server (Action - Used by Claude)          │
+│ ─────────────────────────────────────               │
+│ • MCP tools for sending/replying to email           │
+│ • Invoked by Claude Code (with human approval)      │
+│ • NOT used for polling                              │
+│ • 19 tools: send, reply, forward, drafts, labels    │
+└─────────────────────────────────────────────────────┘
+```
+
+### Why this separation?
+
+**Benefits:**
+1. **Cost efficient**: Watcher runs 24/7 without Claude API calls
+2. **Low latency**: File detection happens in 2-3 seconds
+3. **Resilient**: Watcher can run even if Claude Code is unavailable
+4. **Clear responsibilities**: Watcher = perception, MCP = action
+5. **Independent scaling**: Can adjust polling frequency without affecting Claude
+
+**Complete flow:**
+```
+Gmail receives email  Watcher polls every 2 min  Creates EMAIL_*.md   Systemd timer runs
+(unread in inbox)  ──▶  (Direct Gmail API)    ──▶  in Needs_Action/ ──▶  triage + execute
+                                                    (instant)            (every 30 min)
+                                                         │
+                                                         ▼
+                                           Claude analyzes email with /execute-task
+                                                         │
+                                                         ▼
+                                           Needs to reply? Creates approval request
+                                                         │
+                                                         ▼
+                                           Human approves ──▶ Orchestrator uses Gmail MCP
+                                                         │
+                                                         ▼
+                                                    Email sent!
+```
 
 ---
 
@@ -245,33 +470,89 @@ hackathon0/
 
 ## Common Commands
 
+### Process Management
+
 ```bash
-# PM2 process management
-pm2 list                        # Show process status
-pm2 logs                        # View all logs
-pm2 logs ai-employee-filesystem-watcher  # View watcher logs
-pm2 restart all                 # Restart all processes
-pm2 stop all                    # Stop all processes
+# Start everything from scratch
+pm2 start ops/pm2/ecosystem.config.cjs
+pm2 save
+systemctl --user start ai-employee-queue.timer
 
-# Manual processing (or wait for systemd timer)
-./ops/scripts/process_queue.sh  # Triage + Execute pending items
-./ops/scripts/archive_old.sh    # Cleanup old items
+# Restart all PM2 processes
+pm2 restart all
 
+# Restart individual processes
+pm2 restart ai-employee-filesystem-watcher
+pm2 restart ai-employee-gmail-watcher
+pm2 restart ai-employee-orchestrator
+
+# Stop everything
+pm2 stop all
+systemctl --user stop ai-employee-queue.timer
+
+# Check process status
+pm2 list
+pm2 status
+
+# View logs
+pm2 logs                                      # All processes
+pm2 logs ai-employee-filesystem-watcher      # Filesystem watcher
+pm2 logs ai-employee-gmail-watcher --lines 50 # Gmail watcher (last 50 lines)
+pm2 logs ai-employee-orchestrator            # Orchestrator
+```
+
+### Manual Processing
+
+```bash
+# Run queue processing manually (don't wait for timer)
+./ops/scripts/process_queue.sh
+
+# Run archive cleanup
+./ops/scripts/archive_old.sh
+
+# Trigger systemd service manually
+systemctl --user start ai-employee-queue.service
+```
+
+### Testing & Monitoring
+
+```bash
 # Test file drop
 echo "Write a poem about AI" > AI_EMPLOYEE_VAULT/Inbox/poem.txt
+
+# Test email (send to yourself with subject/body)
+# Then check: ls AI_EMPLOYEE_VAULT/Needs_Action/EMAIL_*.md
 
 # Check vault state
 ls AI_EMPLOYEE_VAULT/Inbox/
 ls AI_EMPLOYEE_VAULT/Needs_Action/
 ls AI_EMPLOYEE_VAULT/Done/
 
+# View Dashboard
+cat AI_EMPLOYEE_VAULT/Dashboard.md
+
 # Check systemd timer status
 systemctl --user list-timers ai-employee-queue.timer
 systemctl --user status ai-employee-queue.timer
 
+# View timer logs
+journalctl --user -u ai-employee-queue.service -f
+journalctl --user -u ai-employee-queue.service --since "1 hour ago"
+
 # View processing logs
 tail -f AI_EMPLOYEE_VAULT/Logs/process-queue.log
 tail -f AI_EMPLOYEE_VAULT/Logs/cron.log
+tail -f AI_EMPLOYEE_VAULT/Logs/orchestrator-$(date +%Y-%m-%d).log
+```
+
+### System Health Check
+
+```bash
+# One-command health check
+pm2 list && \
+systemctl --user list-timers ai-employee-queue.timer && \
+echo "=== Dashboard ===" && \
+cat AI_EMPLOYEE_VAULT/Dashboard.md
 ```
 
 ---
@@ -299,6 +580,23 @@ cat AI_EMPLOYEE_VAULT/Logs/process-queue.log
 systemctl --user start ai-employee-queue.service
 # OR
 ./ops/scripts/process_queue.sh
+```
+
+### Emails not sending from approved folder
+```bash
+# Check orchestrator logs
+pm2 logs ai-employee-orchestrator --lines 50
+
+# Check action log for errors
+cat AI_EMPLOYEE_VAULT/Logs/$(date +%Y-%m-%d)-actions.json
+
+# Common issues:
+# 1. MCP permissions - orchestrator uses --dangerously-skip-permissions (safe, approval already granted)
+# 2. Gmail API credentials - check ~/.gmail-mcp/credentials.json exists
+# 3. MCP server not running - verify: claude mcp list
+
+# Test Gmail MCP manually:
+claude --dangerously-skip-permissions -p "Use mcp__gmail__gmail_send_message to send test email to your-email@example.com"
 ```
 
 ### PM2 processes keep restarting

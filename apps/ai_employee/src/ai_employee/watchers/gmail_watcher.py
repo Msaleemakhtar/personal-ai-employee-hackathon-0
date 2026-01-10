@@ -32,6 +32,14 @@ class GmailWatcher:
     INITIAL_BACKOFF = 30  # seconds
     MAX_BACKOFF = 3600  # 1 hour
 
+    # Memory management: limit processed IDs in memory
+    MAX_PROCESSED_IDS = 10000  # Keep last 10K processed emails
+    PRUNE_THRESHOLD = 8000  # Prune when we reach 8K
+
+    # Credentials retry configuration
+    MAX_CREDENTIAL_ERRORS = 5  # Max consecutive credential errors before alerting
+    CREDENTIAL_ERROR_COOLDOWN = 3600  # 1 hour cooldown after credential errors
+
     def __init__(self, vault_path: str, check_interval: int = 120):
         self.vault_root = Path(vault_path)
         self.needs_action_dir = self.vault_root / "Needs_Action"
@@ -39,51 +47,87 @@ class GmailWatcher:
         self.check_interval = check_interval
         self.processed_ids_file = self.logs_dir / ".gmail_processed_ids.json"
 
-        # Load persisted processed IDs
+        # Load persisted processed IDs (with age tracking for cleanup)
         self.processed_ids = self._load_processed_ids()
 
         # Exponential backoff state
         self.error_count = 0
         self.backoff_seconds = 0
+        self.credential_error_count = 0
+        self.last_credential_error = 0
 
         # Load credentials from ~/.gmail-mcp/credentials.json
         creds_path = Path.home() / ".gmail-mcp" / "credentials.json"
         if not creds_path.exists():
             raise FileNotFoundError(
                 f"Gmail credentials not found at {creds_path}. "
-                "Run: npx @gongrzhe/server-gmail-autoauth-mcp auth"
+                "Run: cd apps/gmail-mcp-server && uv run gmail-mcp --auth"
             )
 
         self.creds = Credentials.from_authorized_user_file(str(creds_path))
         self.service = build('gmail', 'v1', credentials=self.creds)
 
-    def _load_processed_ids(self) -> set:
-        """Load processed email IDs from persistent storage."""
+    def _load_processed_ids(self) -> dict[str, float]:
+        """Load processed email IDs from persistent storage with timestamps."""
         if not self.processed_ids_file.exists():
-            return set()
+            return {}
         try:
             with open(self.processed_ids_file, encoding='utf-8') as f:
                 data = json.load(f)
-                return set(data.get('processed_ids', []))
+                # Handle both old format (list) and new format (dict)
+                if isinstance(data.get('processed_ids'), list):
+                    # Migrate from old format: convert list to dict with current timestamp
+                    now = _utc_now().timestamp()
+                    return {email_id: now for email_id in data['processed_ids']}
+                return data.get('processed_ids', {})
         except Exception as e:
             print(f"[gmail-watcher] Error loading processed IDs: {e}")
-            return set()
+            return {}
 
     def _save_processed_ids(self) -> None:
         """Persist processed email IDs to survive restarts."""
         self.logs_dir.mkdir(parents=True, exist_ok=True)
         try:
+            # Prune old IDs before saving (keep IDs from last 30 days)
+            self._prune_old_processed_ids()
+
             data = {
-                'processed_ids': list(self.processed_ids),
-                'last_updated': _utc_now().isoformat()
+                'processed_ids': self.processed_ids,
+                'last_updated': _utc_now().isoformat(),
+                'count': len(self.processed_ids)
             }
             with open(self.processed_ids_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
             print(f"[gmail-watcher] Error saving processed IDs: {e}")
 
+    def _prune_old_processed_ids(self) -> None:
+        """Remove old processed IDs to prevent unbounded growth."""
+        if len(self.processed_ids) < self.PRUNE_THRESHOLD:
+            return
+
+        now = _utc_now().timestamp()
+        thirty_days_ago = now - (30 * 24 * 3600)
+
+        # Remove IDs older than 30 days
+        old_ids = [email_id for email_id, timestamp in self.processed_ids.items()
+                   if timestamp < thirty_days_ago]
+
+        for email_id in old_ids:
+            del self.processed_ids[email_id]
+
+        if old_ids:
+            print(f"[gmail-watcher] Pruned {len(old_ids)} processed IDs older than 30 days")
+
+        # If still over threshold, keep only the most recent MAX_PROCESSED_IDS
+        if len(self.processed_ids) > self.MAX_PROCESSED_IDS:
+            # Sort by timestamp (descending) and keep newest
+            sorted_ids = sorted(self.processed_ids.items(), key=lambda x: x[1], reverse=True)
+            self.processed_ids = dict(sorted_ids[:self.MAX_PROCESSED_IDS])
+            print(f"[gmail-watcher] Pruned to {self.MAX_PROCESSED_IDS} most recent IDs")
+
     def check_for_updates(self) -> list:
-        """Query for unread important emails"""
+        """Query for unread important emails only"""
         try:
             results = self.service.users().messages().list(
                 userId='me',
@@ -131,7 +175,8 @@ status: pending
 '''
             filepath = self.needs_action_dir / f'EMAIL_{message["id"]}.md'
             safe_write_text(filepath, content, vault_root=self.vault_root)
-            self.processed_ids.add(message['id'])
+            # Track with timestamp for memory management
+            self.processed_ids[message['id']] = _utc_now().timestamp()
             self._save_processed_ids()  # Persist to survive restarts
             print(f"[gmail-watcher] Created: {filepath.name}")
             return filepath
@@ -147,7 +192,7 @@ status: pending
 
         print("[gmail-watcher] Starting...")
         print(f"[gmail-watcher] Checking every {self.check_interval} seconds")
-        print("[gmail-watcher] Query: is:unread is:important")
+        print("[gmail-watcher] Query: is:unread in:inbox")
         print(f"[gmail-watcher] Loaded {len(self.processed_ids)} processed IDs from storage")
 
         while True:
@@ -172,13 +217,34 @@ status: pending
                 print("\n[gmail-watcher] Interrupted, shutting down...")
                 break
             except Exception as e:
+                error_str = str(e)
                 print(f"[gmail-watcher] Error: {e}")
-                self.error_count += 1
-                # Calculate exponential backoff: 30s, 60s, 120s, ..., max 1 hour
-                self.backoff_seconds = min(
-                    self.INITIAL_BACKOFF * (2 ** (self.error_count - 1)),
-                    self.MAX_BACKOFF
-                )
+
+                # Special handling for credential errors - don't spam retries
+                if 'deleted_client' in error_str or 'invalid_grant' in error_str or 'invalid_client' in error_str:
+                    self.credential_error_count += 1
+                    self.last_credential_error = time.time()
+
+                    if self.credential_error_count >= self.MAX_CREDENTIAL_ERRORS:
+                        print(f"[gmail-watcher] CRITICAL: {self.credential_error_count} consecutive credential errors.")
+                        print("[gmail-watcher] Credentials may be invalid or OAuth client deleted.")
+                        print("[gmail-watcher] Entering long cooldown mode (1 hour between retries)")
+                        self.backoff_seconds = self.CREDENTIAL_ERROR_COOLDOWN
+                    else:
+                        # Gradual backoff for credential errors
+                        self.backoff_seconds = min(
+                            self.INITIAL_BACKOFF * (2 ** self.credential_error_count),
+                            self.CREDENTIAL_ERROR_COOLDOWN
+                        )
+                else:
+                    # Regular errors - standard exponential backoff
+                    self.credential_error_count = 0  # Reset credential error counter
+                    self.error_count += 1
+                    self.backoff_seconds = min(
+                        self.INITIAL_BACKOFF * (2 ** (self.error_count - 1)),
+                        self.MAX_BACKOFF
+                    )
+
                 print(f"[gmail-watcher] Will retry after {self.backoff_seconds}s (error #{self.error_count})")
 
             time.sleep(self.check_interval)
