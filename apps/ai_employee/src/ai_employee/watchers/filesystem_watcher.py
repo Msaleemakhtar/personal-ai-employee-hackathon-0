@@ -4,6 +4,7 @@ import os
 import re
 import signal
 import sys
+from collections import OrderedDict
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -72,10 +73,25 @@ def render_needs_action_note(*, source_path: Path) -> str:
 
 
 class InboxHandler(FileSystemEventHandler):
+    # Memory management and debouncing
+    MAX_SEEN_FILES = 1000
+    PRUNE_THRESHOLD = 800
+    DEBOUNCE_SECONDS = 5.0  # Ignore same file within 5 seconds
+
     def __init__(self, *, vault_root: Path, inbox_dir: Path, needs_action_dir: Path):
         self.vault_root = vault_root
         self.inbox_dir = inbox_dir
         self.needs_action_dir = needs_action_dir
+        # Debounce: track recently seen files to avoid retriggering on atomic saves
+        self._seen_files: OrderedDict[str, float] = OrderedDict()  # filename -> timestamp
+
+    def _prune_seen_files(self) -> None:
+        """Prune old entries from _seen_files to prevent unbounded memory growth."""
+        if len(self._seen_files) < self.PRUNE_THRESHOLD:
+            return
+        num_to_remove = len(self._seen_files) - self.PRUNE_THRESHOLD
+        for _ in range(num_to_remove):
+            self._seen_files.popitem(last=False)
 
     def on_created(self, event):
         if event.is_directory:
@@ -86,19 +102,34 @@ class InboxHandler(FileSystemEventHandler):
         if src.name.startswith("."):
             return
 
+        # Ignore common temp file patterns
+        if any(src.name.endswith(suffix) for suffix in (".tmp", ".swp", ".part", "~")):
+            return
+        if src.name.startswith("#") or src.name.startswith("~"):
+            return
+
         # Only react to files created under inbox
         try:
             src.relative_to(self.inbox_dir)
         except ValueError:
             return
 
-        now = _utc_now()
+        # Debounce: ignore if we've seen this file very recently
+        now = _utc_now().timestamp()
+        if src.name in self._seen_files and now - self._seen_files[src.name] < self.DEBOUNCE_SECONDS:
+            return  # Skip, too soon
+
+        self._seen_files[src.name] = now
+        self._prune_seen_files()  # Prevent memory leak
+
+        timestamp = _utc_now()
         slug = _safe_slug(src.name)
-        out_name = f"FILE_{now.strftime('%Y-%m-%d_%H%M%S')}_{slug}.md"
+        out_name = f"FILE_{timestamp.strftime('%Y-%m-%d_%H%M%S')}_{slug}.md"
         out_path = self.needs_action_dir / out_name
 
         content = render_needs_action_note(source_path=src)
         safe_write_text(out_path, content, vault_root=self.vault_root)
+        print(f"[filesystem-watcher] Created: {out_name}")
 
 
 def _signal_handler(signum: int, _frame) -> None:

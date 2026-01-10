@@ -1,6 +1,0 @@
-/bin/sh: 1: ./ops/scripts/triage_now.sh: not found
-[triage_now] Starting manual triage...
-[triage_now] Repository root: /home/salim/Desktop/hackathon0
-[triage_now] Vault: /home/salim/Desktop/hackathon0/AI_EMPLOYEE_VAULT
-
-./ops/scripts/triage_now.sh: line 29: claude: command not found

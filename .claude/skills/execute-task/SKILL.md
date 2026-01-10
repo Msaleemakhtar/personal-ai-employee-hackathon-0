@@ -1,16 +1,16 @@
 ---
 name: execute-task
 description: Execute pending tasks from Needs_Action queue. Reads task instructions from source files, performs the work, saves output to Done/, and marks items complete.
-allowed-tools: Read, Edit, Write, Glob
+allowed-tools: Read, Edit, Write, Glob, Skill
 ---
 
 # Hackathon Skill: Execute Task
 
 ## Scope
-Bronze tier scope only:
-- Local-first (Obsidian vault only)
-- No external side effects (no email, no payments, no external APIs)
-- Execute content creation, analysis, and organization tasks within the vault
+Supports both Bronze and Silver tier:
+- **Bronze tier**: Local-first (Obsidian vault only) - content creation, analysis, organization
+- **Silver tier**: Email workflow via approval system - drafts emails for human review before sending
+- No direct external side effects (all external actions go through human approval)
 
 ## Hard Safety Boundaries
 - You may ONLY read/write under:
@@ -34,26 +34,44 @@ When this skill runs you must:
 2. **Scan Needs_Action/** for items with `status: pending` (up to 5 items per run).
 
 3. **For each pending item:**
-   a. Read the item's YAML frontmatter to get `source_path`
-   b. Read the source file to get user's instructions
-   c. Execute the task:
-      - For content creation (essays, summaries, haikus): Write the content
-      - For analysis tasks: Analyze and summarize
-      - For organization tasks: Reorganize/restructure as requested
-   d. Save the output to `Done/` with a descriptive filename:
-      - Format: `RESULT_<YYYY-MM-DD>_<descriptive_slug>.md`
-      - Include YAML frontmatter linking to original request
-   e. Update the Needs_Action item:
-      - Set `status: done`
-      - Add completion timestamp
-      - Check off checklist items
-   f. Move the completed Needs_Action item to `Done/`
+   a. Read the item's YAML frontmatter to check `type` field
+
+   b. **If type is "email" (Silver tier):**
+      - Call the send-email-request skill using Skill tool: `skill: "send-email-request"`
+      - The send-email-request skill will:
+        * Draft a professional email response
+        * Create approval request in Pending_Approval/
+        * Update source item status to awaiting_approval
+        * Log the decision
+      - This skill's job is done - email drafting is delegated to send-email-request
+
+   c. **If type is "file_drop" (Bronze tier):**
+      - Read the item's YAML frontmatter to get `source_path`
+      - Read the source file to get user's instructions
+      - Execute the task:
+        * For content creation (essays, summaries, haikus): Write the content
+        * For analysis tasks: Analyze and summarize
+        * For organization tasks: Reorganize/restructure as requested
+      - Save the output to `Done/` with a descriptive filename:
+        * Format: `RESULT_<YYYY-MM-DD>_<descriptive_slug>.md`
+        * Include YAML frontmatter linking to original request
+      - Update the Needs_Action item:
+        * Set `status: done`
+        * Add completion timestamp
+        * Check off checklist items
+      - Move the completed Needs_Action item to `Done/`
 
 4. **Append a summary** to today's decisions log:
    - Format: `[timestamp] EXECUTED: <item_name> → <output_filename>`
 
 ## Task Type Detection
-Parse the user's instruction to determine task type:
+Parse the YAML frontmatter `type` field to determine task type:
+- `type: file_drop` → Read source file and execute user's instruction (content creation/analysis)
+- `type: email` → Silver tier email workflow (draft reply via send-email-request skill)
+- `type: task` → Generic task execution
+- `type: plan` → Execute steps from plan (not implemented yet)
+
+For file_drop tasks, parse the user's instruction to determine what to do:
 - Keywords "write", "create", "draft", "compose" → Content creation
 - Keywords "analyze", "review", "summarize", "explain" → Analysis
 - Keywords "organize", "sort", "move", "restructure" → Organization

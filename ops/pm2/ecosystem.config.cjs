@@ -10,7 +10,14 @@ module.exports = {
       script: "uv",
       args: "run python -m ai_employee.watchers.filesystem_watcher",
       autorestart: true,
-      max_restarts: 50,
+      // Restart policy: max 10 restarts in 1 minute window
+      // After that, wait 1 minute before attempting restart
+      max_restarts: 10,
+      min_uptime: 10000, // Process must stay up 10 seconds to be considered stable
+      restart_delay: 5000, // Wait 5 seconds between restarts
+      exp_backoff_restart_delay: 100, // Exponential backoff starting at 100ms
+      max_memory_restart: "200M", // Restart if memory usage exceeds 200MB
+      kill_timeout: 5000, // Wait 5 seconds for graceful shutdown before SIGKILL
       env: {
         VAULT_PATH: process.env.VAULT_PATH,
         INBOX_PATH: process.env.INBOX_PATH,
@@ -25,7 +32,13 @@ module.exports = {
       script: "uv",
       args: "run python -m ai_employee.orchestrator",
       autorestart: true,
-      max_restarts: 50,
+      // More lenient restart policy for orchestrator (may call Claude CLI)
+      max_restarts: 10,
+      min_uptime: 10000,
+      restart_delay: 5000,
+      exp_backoff_restart_delay: 100,
+      max_memory_restart: "300M", // Higher memory limit (Claude CLI subprocess)
+      kill_timeout: 10000, // Longer grace period (may have subprocess running)
       env: {
         VAULT_PATH: process.env.VAULT_PATH,
         INBOX_PATH: process.env.INBOX_PATH,
@@ -44,7 +57,13 @@ module.exports = {
       script: "uv",
       args: "run python -m ai_employee.watchers.gmail_watcher",
       autorestart: true,
-      max_restarts: 50,
+      // More lenient restart policy (network errors are expected)
+      max_restarts: 15,
+      min_uptime: 30000, // Must stay up 30 seconds to be considered stable
+      restart_delay: 10000, // Wait 10 seconds between restarts
+      exp_backoff_restart_delay: 1000, // Start backoff at 1 second
+      max_memory_restart: "250M",
+      kill_timeout: 5000,
       env: {
         VAULT_PATH: process.env.VAULT_PATH,
       },

@@ -42,7 +42,8 @@ log "Repository root: $REPO_ROOT"
 log "Vault: $VAULT"
 
 # Count pending items before processing (only status: pending, not blocked/done/in_progress)
-PENDING_COUNT=$(grep -l "^status: pending" "$VAULT/Needs_Action"/*.md 2>/dev/null | wc -l)
+# Use find to handle empty directories gracefully
+PENDING_COUNT=$(find "$VAULT/Needs_Action" -name "*.md" -type f -exec grep -l "^status: pending" {} + 2>/dev/null | wc -l)
 log "Pending items in queue: $PENDING_COUNT"
 
 if [ "$PENDING_COUNT" -eq 0 ]; then
